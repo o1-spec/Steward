@@ -1,0 +1,148 @@
+import { z } from "zod";
+import { StewardEventType } from "./event-types";
+
+export const AgentRegisteredPayloadSchema = z.object({
+  name: z.string().min(1, "Agent name is required"),
+  version: z.string().optional(),
+  capabilities: z.array(z.string()).optional(),
+});
+export type AgentRegisteredPayload = z.infer<typeof AgentRegisteredPayloadSchema>;
+
+export const AgentHeartbeatPayloadSchema = z.object({
+  status: z.string().min(1, "Status is required"),
+  cpuUsage: z.number().optional(),
+  memoryUsage: z.number().optional(),
+  activeRunCount: z.number().optional(),
+});
+export type AgentHeartbeatPayload = z.infer<typeof AgentHeartbeatPayloadSchema>;
+
+export const RunStartedPayloadSchema = z.object({
+  runId: z.string().optional(),
+  task: z.string().min(1, "Task description is required"),
+  input: z.record(z.string(), z.unknown()).optional(),
+  parameters: z.record(z.string(), z.unknown()).optional(),
+});
+export type RunStartedPayload = z.infer<typeof RunStartedPayloadSchema>;
+
+export const RunPausedPayloadSchema = z.object({
+  reason: z.string().optional(),
+  pausedAt: z.string().optional(),
+});
+export type RunPausedPayload = z.infer<typeof RunPausedPayloadSchema>;
+
+export const RunResumedPayloadSchema = z.object({
+  reason: z.string().optional(),
+  resumedAt: z.string().optional(),
+});
+export type RunResumedPayload = z.infer<typeof RunResumedPayloadSchema>;
+
+export const RunCompletedPayloadSchema = z.object({
+  result: z.unknown().optional(),
+  summary: z.string().optional(),
+  output: z.record(z.string(), z.unknown()).optional(),
+});
+export type RunCompletedPayload = z.infer<typeof RunCompletedPayloadSchema>;
+
+export const RunFailedPayloadSchema = z.object({
+  error: z.string().min(1, "Error message is required"),
+  code: z.string().optional(),
+  stack: z.string().optional(),
+});
+export type RunFailedPayload = z.infer<typeof RunFailedPayloadSchema>;
+
+export const RunCancelledPayloadSchema = z.object({
+  reason: z.string().optional(),
+  cancelledBy: z.string().optional(),
+});
+export type RunCancelledPayload = z.infer<typeof RunCancelledPayloadSchema>;
+
+export const StepStartedPayloadSchema = z.object({
+  stepId: z.string().optional(),
+  name: z.string().min(1, "Step name is required"),
+  input: z.unknown().optional(),
+});
+export type StepStartedPayload = z.infer<typeof StepStartedPayloadSchema>;
+
+export const StepCompletedPayloadSchema = z.object({
+  stepId: z.string().optional(),
+  output: z.unknown().optional(),
+  summary: z.string().optional(),
+});
+export type StepCompletedPayload = z.infer<typeof StepCompletedPayloadSchema>;
+
+export const StepFailedPayloadSchema = z.object({
+  stepId: z.string().optional(),
+  error: z.string().min(1, "Error message is required"),
+  code: z.string().optional(),
+});
+export type StepFailedPayload = z.infer<typeof StepFailedPayloadSchema>;
+
+export const ToolRequestedPayloadSchema = z.object({
+  toolName: z.string().min(1, "Tool name is required"),
+  arguments: z.record(z.string(), z.unknown()),
+  requestId: z.string().optional(),
+});
+export type ToolRequestedPayload = z.infer<typeof ToolRequestedPayloadSchema>;
+
+export const ToolStartedPayloadSchema = z.object({
+  toolName: z.string().min(1, "Tool name is required"),
+  arguments: z.record(z.string(), z.unknown()).optional(),
+});
+export type ToolStartedPayload = z.infer<typeof ToolStartedPayloadSchema>;
+
+export const ToolSucceededPayloadSchema = z.object({
+  toolName: z.string().min(1, "Tool name is required"),
+  result: z.unknown(),
+});
+export type ToolSucceededPayload = z.infer<typeof ToolSucceededPayloadSchema>;
+
+export const ToolFailedPayloadSchema = z.object({
+  toolName: z.string().min(1, "Tool name is required"),
+  error: z.string().min(1, "Error message is required"),
+  code: z.string().optional(),
+});
+export type ToolFailedPayload = z.infer<typeof ToolFailedPayloadSchema>;
+
+export const ApprovalRequestedPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  action: z.string().min(1, "Action is required"),
+  description: z.string().optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
+});
+export type ApprovalRequestedPayload = z.infer<typeof ApprovalRequestedPayloadSchema>;
+
+export const ApprovalResolvedPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  approved: z.boolean({ message: "approved status is required" }),
+  resolvedBy: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type ApprovalResolvedPayload = z.infer<typeof ApprovalResolvedPayloadSchema>;
+
+export const CommandAcknowledgedPayloadSchema = z.object({
+  commandId: z.string().min(1, "Command ID is required"),
+  status: z.string().min(1, "Status is required"),
+  message: z.string().optional(),
+});
+export type CommandAcknowledgedPayload = z.infer<typeof CommandAcknowledgedPayloadSchema>;
+
+export const payloadSchemas: Record<StewardEventType, z.ZodTypeAny> = {
+  "agent.registered": AgentRegisteredPayloadSchema,
+  "agent.heartbeat": AgentHeartbeatPayloadSchema,
+  "run.started": RunStartedPayloadSchema,
+  "run.paused": RunPausedPayloadSchema,
+  "run.resumed": RunResumedPayloadSchema,
+  "run.completed": RunCompletedPayloadSchema,
+  "run.failed": RunFailedPayloadSchema,
+  "run.cancelled": RunCancelledPayloadSchema,
+  "step.started": StepStartedPayloadSchema,
+  "step.completed": StepCompletedPayloadSchema,
+  "step.failed": StepFailedPayloadSchema,
+  "tool.requested": ToolRequestedPayloadSchema,
+  "tool.started": ToolStartedPayloadSchema,
+  "tool.succeeded": ToolSucceededPayloadSchema,
+  "tool.failed": ToolFailedPayloadSchema,
+  "approval.requested": ApprovalRequestedPayloadSchema,
+  "approval.resolved": ApprovalResolvedPayloadSchema,
+  "command.acknowledged": CommandAcknowledgedPayloadSchema,
+};
