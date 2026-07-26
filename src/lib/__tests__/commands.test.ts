@@ -15,16 +15,25 @@ describe("Milestone 6: Cooperative Agent Controls & Command State Machine", () =
     await prisma.approvalRequest.deleteMany({});
     await prisma.event.deleteMany({});
     await prisma.run.deleteMany({});
-    await prisma.projectApiKey.deleteMany({});
-    await prisma.project.deleteMany({});
+    await prisma.projectMember.deleteMany({});
+    await prisma.session.deleteMany({});
+    await prisma.user.deleteMany({});
+
+    const user = await prisma.user.create({
+      data: { email: `cmd_user_${Date.now()}@steward.dev`, passwordHash: "hash" },
+    });
 
     const project = await prisma.project.create({
       data: {
         name: "Command Test Project",
-        slug: "command-test-project",
+        slug: `command-test-project-${Math.random().toString(36).substring(2)}`,
       },
     });
     testProjectId = project.id;
+
+    await prisma.projectMember.create({
+      data: { projectId: project.id, userId: user.id, role: "OWNER" },
+    });
 
     const rawSecret = generateApiKeySecret();
     testApiKey = rawSecret;

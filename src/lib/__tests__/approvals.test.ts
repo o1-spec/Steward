@@ -14,17 +14,26 @@ describe("Milestone 5: Human Approval Gates & Security Tests", () => {
     await prisma.approvalRequest.deleteMany({});
     await prisma.event.deleteMany({});
     await prisma.run.deleteMany({});
-    await prisma.projectApiKey.deleteMany({});
-    await prisma.project.deleteMany({});
+    await prisma.projectMember.deleteMany({});
+    await prisma.session.deleteMany({});
+    await prisma.user.deleteMany({});
+
+    const user = await prisma.user.create({
+      data: { email: `appr_user_${Date.now()}@steward.dev`, passwordHash: "hash" },
+    });
 
     // Create test project and API key
     const project = await prisma.project.create({
       data: {
         name: "Test Approval Project",
-        slug: "test-approval-project",
+        slug: `test-approval-project-${Math.random().toString(36).substring(2)}`,
       },
     });
     testProjectId = project.id;
+
+    await prisma.projectMember.create({
+      data: { projectId: project.id, userId: user.id, role: "OWNER" },
+    });
 
     const rawSecret = generateApiKeySecret();
     testApiKey = rawSecret;

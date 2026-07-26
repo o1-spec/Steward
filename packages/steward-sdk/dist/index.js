@@ -489,14 +489,17 @@ var StewardAgent = class {
       return result;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      await this.run.emitEvent({
-        eventType: "tool.failed",
-        agentKey: this.name,
-        payload: {
-          toolName: options.toolName,
-          error: errorMsg
-        }
-      });
+      if (!this.run.isTerminal()) {
+        await this.run.emitEvent({
+          eventType: "tool.failed",
+          agentKey: this.name,
+          payload: {
+            toolName: options.toolName,
+            error: errorMsg
+          }
+        }).catch(() => {
+        });
+      }
       throw err;
     }
   }
@@ -684,8 +687,10 @@ var StewardRun = class {
     }
   }
   async emitEvent(input) {
-    if (this.isTerminal() && !["run.cancelled", "run.completed", "run.failed"].includes(input.eventType)) {
-      return { eventId: "noop", duplicate: true };
+    if (this.isTerminal()) {
+      throw new StewardStateError(
+        `Cannot emit event '${input.eventType}' after run '${this.runId}' reached terminal state '${this.state}'`
+      );
     }
     return await this.delivery.sendEvent({
       ...input,

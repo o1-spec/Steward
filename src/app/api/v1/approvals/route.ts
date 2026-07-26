@@ -1,98 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { getCurrentUser } from "@/lib/auth";
+import { getActiveProjectId, checkProjectMembership } from "@/lib/project-auth";
 import { prisma } from "@/lib/db";
-import { ingestEvent } from "@/lib/event-ingestion";
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await getCurrentUser(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status");
-    const reqProjectId = searchParams.get("projectId");
+    const queryProjectId = searchParams.get("projectId");
+    const activeCookieId = await getActiveProjectId(request);
 
-    // Fetch active project by ID, slug 'steward-demo', or latest created
-    let project = null;
-    if (reqProjectId) {
-      project = await prisma.project.findUnique({ where: { id: reqProjectId } });
-    }
-    if (!project) {
-      project = await prisma.project.findUnique({ where: { slug: "steward-demo" } });
-    }
-    if (!project) {
-      project = await prisma.project.findFirst({ orderBy: { createdAt: "desc" } });
+    const targetProjectId = queryProjectId || activeCookieId;
+
+    let projectMembership;
+    if (targetProjectId) {
+      projectMembership = await checkProjectMembership(user.id, targetProjectId);
     }
 
-    if (!project) {
-      return NextResponse.json({ approvals: [] });
-    }
-
-    const now = new Date();
-
-    // 1. Lazy check for expired pending requests
-    const expiredPending = await prisma.approvalRequest.findMany({
-      where: {
-        projectId: project.id,
-        status: "PENDING",
-        expiresAt: { lt: now },
-      },
-      include: { run: true },
-    });
-
-    for (const req of expiredPending) {
-      await prisma.approvalRequest.update({
-        where: { id: req.id },
-        data: { status: "EXPIRED" },
+    if (!projectMembership || !projectMembership.isMember || !projectMembership.project) {
+      const firstMember = await prisma.projectMember.findFirst({
+        where: { userId: user.id },
+        include: { project: true },
+        orderBy: { createdAt: "asc" },
       });
 
-      if (req.run) {
-        await ingestEvent(
-          project.id,
-          {
-            specVersion: "1.0",
-            eventId: `evt_appr_exp_${req.externalId}`,
-            eventType: "approval.expired",
-            occurredAt: now.toISOString(),
-            agentKey: req.agentName,
-            runId: req.run.externalId,
-            payload: {
-              approvalId: req.externalId,
-              reason: "Expired prior to human decision",
-            },
-          }
-        ).catch(() => {});
+      if (!firstMember) {
+        return NextResponse.json({ approvals: [] }, { status: 200 });
       }
+
+      projectMembership = {
+        isMember: true,
+        project: firstMember.project,
+        member: firstMember,
+        role: firstMember.role,
+        error: null,
+      };
     }
 
-    // 2. Build status query
-    const whereClause: Prisma.ApprovalRequestWhereInput = {
+    const project = projectMembership.project!;
+
+    const whereCondition: { projectId: string; status?: string } = {
       projectId: project.id,
-      ...(statusFilter && statusFilter !== "ALL" ? { status: statusFilter.toUpperCase() } : {}),
     };
 
+    if (statusFilter && statusFilter !== "all" && statusFilter.trim() !== "") {
+      whereCondition.status = statusFilter.toUpperCase();
+    }
+
     const approvals = await prisma.approvalRequest.findMany({
-      where: whereClause,
+      where: whereCondition,
+      orderBy: { requestedAt: "desc" },
+      take: 50,
       include: {
         run: {
-          select: {
-            id: true,
-            externalId: true,
-            agentName: true,
-            status: true,
-          },
+          select: { externalId: true, agentName: true },
         },
       },
-      orderBy: [
-        { requestedAt: "desc" },
-      ],
     });
 
-    // Sort pending items to top
-    approvals.sort((a, b) => {
-      if (a.status === "PENDING" && b.status !== "PENDING") return -1;
-      if (a.status !== "PENDING" && b.status === "PENDING") return 1;
-      return b.requestedAt.getTime() - a.requestedAt.getTime();
+    return NextResponse.json({
+      project: {
+        id: project.id,
+        name: project.name,
+        slug: project.slug,
+      },
+      approvals,
     });
-
-    return NextResponse.json({ approvals });
   } catch (err: unknown) {
     return NextResponse.json(
       { error: (err as Error).message || "Internal server error" },

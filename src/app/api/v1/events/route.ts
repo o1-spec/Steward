@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { authenticateApiKey } from "../../../../lib/api-keys";
-import { ingestEvent } from "../../../../lib/event-ingestion";
+import { authenticateApiKey } from "@/lib/api-keys";
+import { ingestEvent } from "@/lib/event-ingestion";
+import { rateLimitRequest } from "@/lib/rate-limiter";
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -8,6 +9,11 @@ export async function POST(request: Request) {
 
   if (!authResult.authenticated) {
     return NextResponse.json({ error: authResult.error }, { status: 401 });
+  }
+
+  const limitCheck = await rateLimitRequest(`events:${authResult.apiKey.id}`, { limit: 500, windowMs: 60000 });
+  if (!limitCheck.allowed) {
+    return limitCheck.response;
   }
 
   let body: unknown;
@@ -20,6 +26,7 @@ export async function POST(request: Request) {
     );
   }
 
+  // Always use the authenticated API key's projectId
   const result = await ingestEvent(authResult.project.id, body);
 
   if (!result.success) {

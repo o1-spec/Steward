@@ -160,8 +160,10 @@ export class StewardRun {
   }
 
   public async emitEvent(input: Omit<EventEnvelopeInput, "runId">): Promise<{ eventId: string; duplicate: boolean }> {
-    if (this.isTerminal() && !["run.cancelled", "run.completed", "run.failed"].includes(input.eventType)) {
-      return { eventId: "noop", duplicate: true };
+    if (this.isTerminal()) {
+      throw new StewardStateError(
+        `Cannot emit event '${input.eventType}' after run '${this.runId}' reached terminal state '${this.state}'`
+      );
     }
 
     return await this.delivery.sendEvent({

@@ -66,11 +66,16 @@ export async function authenticateApiKey(authHeader: string | null | undefined) 
     return { authenticated: false as const, error: "Invalid or revoked API key" };
   }
 
-  // Update lastUsedAt asynchronously
-  await prisma.projectApiKey.update({
-    where: { id: apiKey.id },
-    data: { lastUsedAt: new Date() },
-  });
+  // Throttled lastUsedAt update strategy: only write if null or older than 60 seconds
+  const now = new Date();
+  if (!apiKey.lastUsedAt || now.getTime() - apiKey.lastUsedAt.getTime() > 60000) {
+    prisma.projectApiKey
+      .update({
+        where: { id: apiKey.id },
+        data: { lastUsedAt: now },
+      })
+      .catch(() => {});
+  }
 
   return {
     authenticated: true as const,

@@ -7,6 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions       Session[]
+  accounts       Account[]
+  projectMembers ProjectMember[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
 model Project {
   id        String   @id @default(cuid())
   name      String
@@ -14,12 +58,26 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  members          ProjectMember[]
   apiKeys          ProjectApiKey[]
   runs             Run[]
   events           Event[]
   approvalRequests ApprovalRequest[]
   runCommands      RunCommand[]
   auditLogs        AuditLog[]
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("MEMBER") // OWNER, MEMBER
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
 }
 
 model ProjectApiKey {
@@ -40,7 +98,7 @@ model Run {
   projectId    String
   externalId   String
   agentName    String
-  status       String    // WAITING, RUNNING, COMPLETED, FAILED, CANCELLED
+  status       String // WAITING, RUNNING, COMPLETED, FAILED, CANCELLED
   controlState String    @default("ACTIVE") // ACTIVE, PAUSE_REQUESTED, PAUSED, RESUME_REQUESTED, CANCEL_REQUESTED
   startedAt    DateTime
   endedAt      DateTime?
@@ -102,7 +160,7 @@ model RunCommand {
   projectId      String
   runId          String
   externalId     String
-  type           String    // PAUSE, RESUME, CANCEL
+  type           String // PAUSE, RESUME, CANCEL
   status         String    @default("PENDING") // PENDING, ACKNOWLEDGED, COMPLETED, FAILED, EXPIRED
   requestedAt    DateTime  @default(now())
   acknowledgedAt DateTime?
@@ -123,14 +181,20 @@ model RunCommand {
 
 model AuditLog {
   id                String   @id @default(cuid())
-  projectId         String
+  projectId         String?
   approvalRequestId String?
-  action            String
-  outcome           String
+  actorType         String   @default("SYSTEM") // USER, AGENT, SYSTEM
+  actorId           String?
   actor             String
+  action            String
+  targetType        String?
+  targetId          String?
+  outcome           String
   reason            String?
   metadata          Json?
+  ipAddressHash     String?
+  userAgent         String?
   createdAt         DateTime @default(now())
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

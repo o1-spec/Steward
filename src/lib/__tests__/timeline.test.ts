@@ -7,6 +7,7 @@ import {
   formatTokens,
   formatCost,
 } from "../formatters";
+import { NextRequest } from "next/server";
 import { GET as getRuns } from "../../app/api/v1/runs/route";
 import { GET as getRunDetail } from "../../app/api/v1/runs/[runId]/route";
 
@@ -14,12 +15,34 @@ describe("Milestone 3: Live Run Timeline & Utilities", () => {
   let projectA: { id: string; name: string; slug: string };
   let projectB: { id: string; name: string; slug: string };
 
+  let sessionToken: string;
+
   beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: { email: `timeline_user_${Date.now()}@steward.dev`, passwordHash: "hash" },
+    });
+
+    sessionToken = `token_timeline_${Date.now()}`;
+    await prisma.session.create({
+      data: {
+        userId: user.id,
+        sessionToken,
+        expiresAt: new Date(Date.now() + 86400000),
+      },
+    });
+
     projectA = await prisma.project.create({
       data: { name: "Timeline Test Project A", slug: `timeline-a-${Date.now()}` },
     });
     projectB = await prisma.project.create({
       data: { name: "Timeline Test Project B", slug: `timeline-b-${Date.now()}` },
+    });
+
+    await prisma.projectMember.createMany({
+      data: [
+        { projectId: projectA.id, userId: user.id, role: "OWNER" },
+        { projectId: projectB.id, userId: user.id, role: "OWNER" },
+      ],
     });
   });
 
@@ -97,7 +120,7 @@ describe("Milestone 3: Live Run Timeline & Utilities", () => {
   describe("REST APIs & Ordering", () => {
     it("should return 404 for an unknown run ID", async () => {
       const req = new Request("http://localhost:3000/api/v1/runs/unknown_run_999");
-      const res = await getRunDetail(req, {
+      const res = await getRunDetail(req as unknown as NextRequest, {
         params: Promise.resolve({ runId: "unknown_run_999" }),
       });
       expect(res.status).toBe(404);
@@ -127,9 +150,10 @@ describe("Milestone 3: Live Run Timeline & Utilities", () => {
       });
 
       const req = new Request(
-        `http://localhost:3000/api/v1/runs?projectSlug=${projectA.slug}`
+        `http://localhost:3000/api/v1/runs?projectId=${projectA.id}`,
+        { headers: { Cookie: `stwd_session=${sessionToken}` } }
       );
-      const res = await getRuns(req);
+      const res = await getRuns(req as unknown as NextRequest);
       expect(res.status).toBe(200);
       const data = await res.json();
 
@@ -179,8 +203,10 @@ describe("Milestone 3: Live Run Timeline & Utilities", () => {
         },
       });
 
-      const req = new Request(`http://localhost:3000/api/v1/runs/${run.id}`);
-      const res = await getRunDetail(req, {
+      const req = new Request(`http://localhost:3000/api/v1/runs/${run.id}`, {
+        headers: { Cookie: `stwd_session=${sessionToken}` },
+      });
+      const res = await getRunDetail(req as unknown as NextRequest, {
         params: Promise.resolve({ runId: run.id }),
       });
       expect(res.status).toBe(200);

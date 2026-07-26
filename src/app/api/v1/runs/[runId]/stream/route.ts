@@ -1,10 +1,20 @@
-import { prisma } from "../../../../../../lib/db";
-import { stewardEventBus } from "../../../../../../lib/event-bus";
+import { getCurrentUser } from "@/lib/auth";
+import { checkProjectMembership } from "@/lib/project-auth";
+import { prisma } from "@/lib/db";
+import { stewardEventBus } from "@/lib/event-bus";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ runId: string }> }
 ) {
+  const user = await getCurrentUser(request);
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const { runId } = await params;
 
   const run = await prisma.run.findFirst({
@@ -15,6 +25,14 @@ export async function GET(
   });
 
   if (!run) {
+    return new Response(JSON.stringify({ error: "Run not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const authCheck = await checkProjectMembership(user.id, run.projectId);
+  if (!authCheck.isMember) {
     return new Response(JSON.stringify({ error: "Run not found" }), {
       status: 404,
       headers: { "Content-Type": "application/json" },
