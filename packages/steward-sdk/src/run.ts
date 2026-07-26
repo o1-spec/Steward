@@ -1,5 +1,11 @@
-import { StartRunOptions, RunState } from "./types";
-import { StewardStateError } from "./errors";
+import {
+  StartRunOptions,
+  RunState,
+  RunControlState,
+  CommandItem,
+  CommandListenerOptions,
+} from "./types";
+import { StewardStateError, StewardRunCancelledError } from "./errors";
 import { EventDeliveryClient, EventEnvelopeInput } from "./delivery";
 import { StewardAgent, AgentInitOptions } from "./agent";
 import { createRedactor } from "./redaction";
@@ -9,7 +15,14 @@ export class StewardRun {
   public readonly defaultAgentName: string;
   private delivery: EventDeliveryClient;
   private state: RunState = "created";
+  private controlState: RunControlState = "ACTIVE";
   private redactor: <T>(data: T) => T;
+
+  private checkpointWaiters: Array<{ resolve: () => void; reject: (err: Error) => void }> = [];
+  private processedCommandIds: Set<string> = new Set();
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private isPolling = false;
+  public readonly abortController: AbortController = new AbortController();
 
   constructor(delivery: EventDeliveryClient, defaultAgentName: string, options: StartRunOptions = {}) {
     this.delivery = delivery;
@@ -22,15 +35,133 @@ export class StewardRun {
     return this.state;
   }
 
+  public getControlState(): RunControlState {
+    return this.controlState;
+  }
+
   public isTerminal(): boolean {
     return this.state === "completed" || this.state === "failed" || this.state === "cancelled";
   }
 
+  public async checkpoint(): Promise<void> {
+    if (this.isTerminal() || this.controlState === "CANCELLED") {
+      throw new StewardRunCancelledError(this.runId, "Run was cancelled or reaches terminal state");
+    }
+
+    if (this.controlState === "ACTIVE") {
+      return;
+    }
+
+    if (this.controlState === "PAUSED" || this.controlState === "PAUSE_REQUESTED") {
+      return new Promise<void>((resolve, reject) => {
+        this.checkpointWaiters.push({ resolve, reject });
+      });
+    }
+  }
+
+  public startCommandListener(options: CommandListenerOptions = {}): void {
+    if (this.isPolling) {
+      throw new StewardStateError(`Command listener is already running for run '${this.runId}'`);
+    }
+
+    this.isPolling = true;
+    const intervalMs = options.pollIntervalMs || 2000;
+
+    const poll = async () => {
+      if (!this.isPolling || this.isTerminal()) {
+        this.stopCommandListener();
+        return;
+      }
+
+      try {
+        const commands = await this.delivery.fetchPendingCommands(this.runId);
+        for (const cmd of commands) {
+          const cmdKey = cmd.externalId || cmd.id || cmd.commandId;
+          if (this.processedCommandIds.has(cmdKey)) {
+            continue;
+          }
+          this.processedCommandIds.add(cmdKey);
+
+          await this.processCommand(cmd, options);
+        }
+      } catch {
+        if (this.isPolling) {
+          // Log/handle transient network poll errors without throwing unhandled
+        }
+      }
+    };
+
+    // Run first poll immediately
+    poll();
+    this.pollTimer = setInterval(poll, intervalMs);
+  }
+
+  public stopCommandListener(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
+    this.isPolling = false;
+  }
+
+  private async processCommand(cmd: CommandItem, options: CommandListenerOptions): Promise<void> {
+    const cmdKey = cmd.externalId || cmd.id || cmd.commandId;
+
+    try {
+      // 1. Acknowledge command first
+      await this.delivery.acknowledgeCommand(this.runId, cmdKey).catch(() => {});
+
+      // 2. Handle command type
+      const type = cmd.type.toUpperCase();
+
+      if (type === "PAUSE") {
+        this.controlState = "PAUSED";
+        if (options.onPause) {
+          await options.onPause(cmd);
+        }
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "PAUSED" });
+      } else if (type === "RESUME") {
+        this.controlState = "ACTIVE";
+        if (options.onResume) {
+          await options.onResume(cmd);
+        }
+        // Resolve waiting checkpoints
+        const waiters = [...this.checkpointWaiters];
+        this.checkpointWaiters = [];
+        waiters.forEach((w) => w.resolve());
+
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "ACTIVE" });
+      } else if (type === "CANCEL") {
+        this.state = "cancelled";
+        this.controlState = "CANCELLED";
+
+        if (options.onCancel) {
+          await options.onCancel(cmd);
+        }
+
+        // Abort SDK-managed network requests
+        this.abortController.abort();
+
+        // Reject all waiting checkpoints
+        const waiters = [...this.checkpointWaiters];
+        this.checkpointWaiters = [];
+        const cancelErr = new StewardRunCancelledError(this.runId, cmd.reason || "Run cancelled by dashboard");
+        waiters.forEach((w) => w.reject(cancelErr));
+
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "CANCELLED" });
+        this.stopCommandListener();
+      }
+    } catch (err: unknown) {
+      const errorObj = { message: (err as Error).message || "Handler execution failed" };
+      await this.delivery.failCommand(this.runId, cmdKey, errorObj).catch(() => {});
+      this.controlState = "ACTIVE";
+      throw err;
+    }
+  }
+
   public async emitEvent(input: Omit<EventEnvelopeInput, "runId">): Promise<{ eventId: string; duplicate: boolean }> {
-    if (this.isTerminal()) {
-      throw new StewardStateError(
-        `Cannot emit event '${input.eventType}' after run '${this.runId}' reached terminal state '${this.state}'`
-      );
+    if (this.isTerminal() && !["run.cancelled", "run.completed", "run.failed"].includes(input.eventType)) {
+      return { eventId: "noop", duplicate: true };
     }
 
     return await this.delivery.sendEvent({
@@ -79,6 +210,8 @@ export class StewardRun {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
 
@@ -105,6 +238,8 @@ export class StewardRun {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
 
@@ -115,6 +250,7 @@ export class StewardRun {
 
     const previousState = this.state;
     this.state = "cancelled";
+    this.controlState = "CANCELLED";
 
     try {
       await this.delivery.sendEvent({
@@ -128,6 +264,8 @@ export class StewardRun {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
 

@@ -4,6 +4,7 @@ import {
   StewardConfigError,
   StewardStateError,
   StewardApiError,
+  StewardRunCancelledError,
   createRedactor,
 } from "../index";
 
@@ -416,6 +417,89 @@ describe("@steward/sdk Test Suite", () => {
       ).rejects.toThrow();
 
       expect(callbackRan).toBe(false);
+    });
+  });
+
+  describe("Cooperative Agent Controls & Checkpoints", () => {
+    it("should allow checkpoint to return immediately when run is ACTIVE", async () => {
+      const mockFetch = vi.fn().mockImplementation(async () => ({
+        status: 200,
+        json: async () => ({ accepted: true }),
+      }));
+
+      const steward = new Steward({
+        apiKey: mockApiKey,
+        baseUrl: mockBaseUrl,
+        agentName: mockAgentName,
+        fetch: mockFetch,
+      });
+
+      const run = steward.startRun();
+      await expect(run.checkpoint()).resolves.toBeUndefined();
+    });
+
+    it("should reject checkpoint with StewardRunCancelledError when run is CANCELLED", async () => {
+      const mockFetch = vi.fn().mockImplementation(async () => ({
+        status: 200,
+        json: async () => ({ accepted: true }),
+      }));
+
+      const steward = new Steward({
+        apiKey: mockApiKey,
+        baseUrl: mockBaseUrl,
+        agentName: mockAgentName,
+        fetch: mockFetch,
+      });
+
+      const run = steward.startRun();
+      await run.cancelled({ reason: "Operator cancelled" });
+
+      await expect(run.checkpoint()).rejects.toThrow(StewardRunCancelledError);
+    });
+
+    it("should pause execution at checkpoint when PAUSED and resume when RESUMED", async () => {
+      let pendingCmds = [
+        { id: "c1", externalId: "c1", type: "PAUSE", status: "PENDING" },
+      ];
+
+      const mockFetch = vi.fn().mockImplementation(async (url) => {
+        if (url.includes("/commands/pending")) {
+          const res = [...pendingCmds];
+          pendingCmds = [];
+          return {
+            status: 200,
+            json: async () => ({ commands: res }),
+          };
+        }
+        return {
+          status: 200,
+          json: async () => ({ success: true }),
+        };
+      });
+
+      const steward = new Steward({
+        apiKey: mockApiKey,
+        baseUrl: mockBaseUrl,
+        agentName: mockAgentName,
+        fetch: mockFetch,
+      });
+
+      const run = steward.startRun();
+      let pauseExecuted = false;
+
+      run.startCommandListener({
+        pollIntervalMs: 50,
+        onPause: async () => {
+          pauseExecuted = true;
+        },
+      });
+
+      // Wait for poll
+      await new Promise((res) => setTimeout(res, 100));
+      expect(pauseExecuted).toBe(true);
+      expect(run.getControlState()).toBe("PAUSED");
+
+      run.stopCommandListener();
     });
   });
 });

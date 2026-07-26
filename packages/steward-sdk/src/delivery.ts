@@ -1,4 +1,4 @@
-import { StewardOptions, ApprovalDecisionResult } from "./types";
+import { StewardOptions, ApprovalDecisionResult, CommandItem } from "./types";
 import { StewardApiError } from "./errors";
 import { createRedactor } from "./redaction";
 
@@ -181,5 +181,88 @@ export class EventDeliveryClient {
     }
 
     return (await response.json()) as ApprovalDecisionResult;
+  }
+
+  public async fetchPendingCommands(externalRunId: string): Promise<CommandItem[]> {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/pending`;
+    const response = await this.fetchImpl(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+      },
+    });
+
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to fetch pending commands: ${text}`, false);
+    }
+
+    const data = await response.json();
+    return (data.commands || []) as CommandItem[];
+  }
+
+  public async acknowledgeCommand(externalRunId: string, commandId: string): Promise<unknown> {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/acknowledge`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "ACKNOWLEDGED" }),
+    });
+
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to acknowledge command: ${text}`, false);
+    }
+
+    return await response.json();
+  }
+
+  public async completeCommand(
+    externalRunId: string,
+    commandId: string,
+    result?: Record<string, unknown>
+  ): Promise<unknown> {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/complete`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "COMPLETED", result }),
+    });
+
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to complete command: ${text}`, false);
+    }
+
+    return await response.json();
+  }
+
+  public async failCommand(
+    externalRunId: string,
+    commandId: string,
+    error?: Record<string, unknown>
+  ): Promise<unknown> {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/fail`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: "FAILED", error }),
+    });
+
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to fail command: ${text}`, false);
+    }
+
+    return await response.json();
   }
 }

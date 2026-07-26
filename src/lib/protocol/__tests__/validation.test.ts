@@ -136,9 +136,30 @@ describe("Steward V1 Protocol Validation", () => {
       approvalId: "appr_100",
       reason: "Run terminated before decision",
     },
+    "command.requested": {
+      commandId: "cmd_456",
+      commandType: "PAUSE",
+      requestedBy: "operator_01",
+      reason: "Inspect agent state",
+    },
     "command.acknowledged": {
       commandId: "cmd_456",
-      status: "received",
+      status: "ACKNOWLEDGED",
+    },
+    "command.completed": {
+      commandId: "cmd_456",
+      commandType: "PAUSE",
+      result: { state: "PAUSED" },
+    },
+    "command.failed": {
+      commandId: "cmd_456",
+      commandType: "PAUSE",
+      error: { message: "Checkpoint unreachable" },
+    },
+    "command.expired": {
+      commandId: "cmd_456",
+      commandType: "PAUSE",
+      reason: "Command unacknowledged after 5 minutes",
     },
   };
 

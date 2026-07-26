@@ -46,6 +46,26 @@ var StewardApprovalExpiredError = class _StewardApprovalExpiredError extends Err
     Object.setPrototypeOf(this, _StewardApprovalExpiredError.prototype);
   }
 };
+var StewardRunCancelledError = class _StewardRunCancelledError extends Error {
+  runId;
+  reason;
+  constructor(runId, reason) {
+    super(`Run '${runId}' was cancelled${reason ? `: ${reason}` : ""}`);
+    this.name = "StewardRunCancelledError";
+    this.runId = runId;
+    this.reason = reason;
+    Object.setPrototypeOf(this, _StewardRunCancelledError.prototype);
+  }
+};
+var StewardRunPausedError = class _StewardRunPausedError extends Error {
+  runId;
+  constructor(runId) {
+    super(`Run '${runId}' is currently paused`);
+    this.name = "StewardRunPausedError";
+    this.runId = runId;
+    Object.setPrototypeOf(this, _StewardRunPausedError.prototype);
+  }
+};
 
 // src/redaction.ts
 var DEFAULT_SENSITIVE_KEYS = [
@@ -242,6 +262,69 @@ var EventDeliveryClient = class {
     }
     return await response.json();
   }
+  async fetchPendingCommands(externalRunId) {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/pending`;
+    const response = await this.fetchImpl(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`
+      }
+    });
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to fetch pending commands: ${text}`, false);
+    }
+    const data = await response.json();
+    return data.commands || [];
+  }
+  async acknowledgeCommand(externalRunId, commandId) {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/acknowledge`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: "ACKNOWLEDGED" })
+    });
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to acknowledge command: ${text}`, false);
+    }
+    return await response.json();
+  }
+  async completeCommand(externalRunId, commandId, result) {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/complete`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: "COMPLETED", result })
+    });
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to complete command: ${text}`, false);
+    }
+    return await response.json();
+  }
+  async failCommand(externalRunId, commandId, error) {
+    const url = `${this.options.baseUrl.replace(/\/+$/, "")}/api/v1/runs/${encodeURIComponent(externalRunId)}/commands/${encodeURIComponent(commandId)}/fail`;
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.options.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: "FAILED", error })
+    });
+    if (response.status !== 200) {
+      const text = await response.text().catch(() => "");
+      throw new StewardApiError(response.status, `Failed to fail command: ${text}`, false);
+    }
+    return await response.json();
+  }
 };
 
 // src/agent.ts
@@ -257,6 +340,7 @@ var StewardAgent = class {
     this.redactor = createRedactor();
   }
   async started(payload = {}) {
+    await this.run.checkpoint();
     await this.run.emitEvent({
       eventType: "agent.started",
       agentKey: this.name,
@@ -290,6 +374,7 @@ var StewardAgent = class {
     });
   }
   async modelCall(options, fn) {
+    await this.run.checkpoint();
     const startTime = Date.now();
     await this.run.emitEvent({
       eventType: "model.started",
@@ -339,6 +424,7 @@ var StewardAgent = class {
     }
   }
   async toolCall(options, fn) {
+    await this.run.checkpoint();
     const startTime = Date.now();
     const redactedArgs = this.redactor(options.arguments || {});
     await this.run.emitEvent({
@@ -377,6 +463,7 @@ var StewardAgent = class {
     }
   }
   async requestApproval(options) {
+    await this.run.checkpoint();
     const externalId = options.approvalId || `appr_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
     const timeoutMs = options.timeoutMs || 3e5;
     const expiresInSeconds = Math.ceil(timeoutMs / 1e3);
@@ -397,8 +484,8 @@ var StewardAgent = class {
     const startTime = Date.now();
     let pollIntervalMs = 500;
     while (Date.now() - startTime < timeoutMs) {
-      if (this.run.isTerminal()) {
-        throw new StewardApprovalExpiredError(externalId);
+      if (this.run.isTerminal() || this.run.getControlState() === "CANCELLED") {
+        throw new StewardRunCancelledError(this.run.runId, "Run was cancelled while waiting for approval");
       }
       const statusResult = await delivery.checkApprovalStatus(externalId);
       if (statusResult.status === "APPROVED") {
@@ -444,7 +531,13 @@ var StewardRun = class {
   defaultAgentName;
   delivery;
   state = "created";
+  controlState = "ACTIVE";
   redactor;
+  checkpointWaiters = [];
+  processedCommandIds = /* @__PURE__ */ new Set();
+  pollTimer = null;
+  isPolling = false;
+  abortController = new AbortController();
   constructor(delivery, defaultAgentName, options = {}) {
     this.delivery = delivery;
     this.defaultAgentName = defaultAgentName;
@@ -454,14 +547,107 @@ var StewardRun = class {
   getState() {
     return this.state;
   }
+  getControlState() {
+    return this.controlState;
+  }
   isTerminal() {
     return this.state === "completed" || this.state === "failed" || this.state === "cancelled";
   }
+  async checkpoint() {
+    if (this.isTerminal() || this.controlState === "CANCELLED") {
+      throw new StewardRunCancelledError(this.runId, "Run was cancelled or reaches terminal state");
+    }
+    if (this.controlState === "ACTIVE") {
+      return;
+    }
+    if (this.controlState === "PAUSED" || this.controlState === "PAUSE_REQUESTED") {
+      return new Promise((resolve, reject) => {
+        this.checkpointWaiters.push({ resolve, reject });
+      });
+    }
+  }
+  startCommandListener(options = {}) {
+    if (this.isPolling) {
+      throw new StewardStateError(`Command listener is already running for run '${this.runId}'`);
+    }
+    this.isPolling = true;
+    const intervalMs = options.pollIntervalMs || 2e3;
+    const poll = async () => {
+      if (!this.isPolling || this.isTerminal()) {
+        this.stopCommandListener();
+        return;
+      }
+      try {
+        const commands = await this.delivery.fetchPendingCommands(this.runId);
+        for (const cmd of commands) {
+          const cmdKey = cmd.externalId || cmd.id || cmd.commandId;
+          if (this.processedCommandIds.has(cmdKey)) {
+            continue;
+          }
+          this.processedCommandIds.add(cmdKey);
+          await this.processCommand(cmd, options);
+        }
+      } catch {
+        if (this.isPolling) {
+        }
+      }
+    };
+    poll();
+    this.pollTimer = setInterval(poll, intervalMs);
+  }
+  stopCommandListener() {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
+    this.isPolling = false;
+  }
+  async processCommand(cmd, options) {
+    const cmdKey = cmd.externalId || cmd.id || cmd.commandId;
+    try {
+      await this.delivery.acknowledgeCommand(this.runId, cmdKey).catch(() => {
+      });
+      const type = cmd.type.toUpperCase();
+      if (type === "PAUSE") {
+        this.controlState = "PAUSED";
+        if (options.onPause) {
+          await options.onPause(cmd);
+        }
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "PAUSED" });
+      } else if (type === "RESUME") {
+        this.controlState = "ACTIVE";
+        if (options.onResume) {
+          await options.onResume(cmd);
+        }
+        const waiters = [...this.checkpointWaiters];
+        this.checkpointWaiters = [];
+        waiters.forEach((w) => w.resolve());
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "ACTIVE" });
+      } else if (type === "CANCEL") {
+        this.state = "cancelled";
+        this.controlState = "CANCELLED";
+        if (options.onCancel) {
+          await options.onCancel(cmd);
+        }
+        this.abortController.abort();
+        const waiters = [...this.checkpointWaiters];
+        this.checkpointWaiters = [];
+        const cancelErr = new StewardRunCancelledError(this.runId, cmd.reason || "Run cancelled by dashboard");
+        waiters.forEach((w) => w.reject(cancelErr));
+        await this.delivery.completeCommand(this.runId, cmdKey, { state: "CANCELLED" });
+        this.stopCommandListener();
+      }
+    } catch (err) {
+      const errorObj = { message: err.message || "Handler execution failed" };
+      await this.delivery.failCommand(this.runId, cmdKey, errorObj).catch(() => {
+      });
+      this.controlState = "ACTIVE";
+      throw err;
+    }
+  }
   async emitEvent(input) {
-    if (this.isTerminal()) {
-      throw new StewardStateError(
-        `Cannot emit event '${input.eventType}' after run '${this.runId}' reached terminal state '${this.state}'`
-      );
+    if (this.isTerminal() && !["run.cancelled", "run.completed", "run.failed"].includes(input.eventType)) {
+      return { eventId: "noop", duplicate: true };
     }
     return await this.delivery.sendEvent({
       ...input,
@@ -503,6 +689,8 @@ var StewardRun = class {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
   async failed(payload) {
@@ -525,6 +713,8 @@ var StewardRun = class {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
   async cancelled(payload = {}) {
@@ -533,6 +723,7 @@ var StewardRun = class {
     }
     const previousState = this.state;
     this.state = "cancelled";
+    this.controlState = "CANCELLED";
     try {
       await this.delivery.sendEvent({
         eventType: "run.cancelled",
@@ -545,6 +736,8 @@ var StewardRun = class {
     } catch (err) {
       this.state = previousState;
       throw err;
+    } finally {
+      this.stopCommandListener();
     }
   }
   agent(options = {}) {
@@ -597,6 +790,8 @@ export {
   StewardApprovalRejectedError,
   StewardConfigError,
   StewardRun,
+  StewardRunCancelledError,
+  StewardRunPausedError,
   StewardStateError,
   createRedactor,
   isSensitiveKey

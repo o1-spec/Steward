@@ -196,12 +196,42 @@ export const ApprovalCancelledPayloadSchema = z.object({
 });
 export type ApprovalCancelledPayload = z.infer<typeof ApprovalCancelledPayloadSchema>;
 
+export const CommandRequestedPayloadSchema = z.object({
+  commandId: z.string().min(1, "Command ID is required"),
+  commandType: z.string().min(1, "Command type is required"),
+  requestedBy: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type CommandRequestedPayload = z.infer<typeof CommandRequestedPayloadSchema>;
+
 export const CommandAcknowledgedPayloadSchema = z.object({
   commandId: z.string().min(1, "Command ID is required"),
   status: z.string().min(1, "Status is required"),
   message: z.string().optional(),
 });
 export type CommandAcknowledgedPayload = z.infer<typeof CommandAcknowledgedPayloadSchema>;
+
+export const CommandCompletedPayloadSchema = z.object({
+  commandId: z.string().min(1, "Command ID is required"),
+  commandType: z.string().optional(),
+  result: z.record(z.string(), z.unknown()).optional(),
+});
+export type CommandCompletedPayload = z.infer<typeof CommandCompletedPayloadSchema>;
+
+export const CommandFailedPayloadSchema = z.object({
+  commandId: z.string().min(1, "Command ID is required"),
+  commandType: z.string().optional(),
+  error: z.record(z.string(), z.unknown()).optional(),
+  message: z.string().optional(),
+});
+export type CommandFailedPayload = z.infer<typeof CommandFailedPayloadSchema>;
+
+export const CommandExpiredPayloadSchema = z.object({
+  commandId: z.string().min(1, "Command ID is required"),
+  commandType: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type CommandExpiredPayload = z.infer<typeof CommandExpiredPayloadSchema>;
 
 export const payloadSchemas: Record<StewardEventType, z.ZodTypeAny> = {
   "agent.registered": AgentRegisteredPayloadSchema,
@@ -231,5 +261,9 @@ export const payloadSchemas: Record<StewardEventType, z.ZodTypeAny> = {
   "approval.rejected": ApprovalRejectedPayloadSchema,
   "approval.expired": ApprovalExpiredPayloadSchema,
   "approval.cancelled": ApprovalCancelledPayloadSchema,
+  "command.requested": CommandRequestedPayloadSchema,
   "command.acknowledged": CommandAcknowledgedPayloadSchema,
+  "command.completed": CommandCompletedPayloadSchema,
+  "command.failed": CommandFailedPayloadSchema,
+  "command.expired": CommandExpiredPayloadSchema,
 };

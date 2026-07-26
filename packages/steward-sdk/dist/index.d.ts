@@ -58,7 +58,24 @@ interface ApprovalDecisionResult {
     decisionReason?: string | null;
     expiresAt: string;
 }
-type RunState = "created" | "running" | "completed" | "failed" | "cancelled";
+interface CommandItem {
+    id: string;
+    commandId: string;
+    externalId: string;
+    type: "PAUSE" | "RESUME" | "CANCEL" | string;
+    status: "PENDING" | "ACKNOWLEDGED" | "COMPLETED" | "FAILED" | "EXPIRED" | string;
+    requestedAt: string;
+    reason?: string | null;
+}
+interface CommandListenerOptions {
+    pollIntervalMs?: number;
+    onPause?: (command: CommandItem) => Promise<void> | void;
+    onResume?: (command: CommandItem) => Promise<void> | void;
+    onCancel?: (command: CommandItem) => Promise<void> | void;
+}
+type RunLifecycleStatus = "created" | "running" | "completed" | "failed" | "cancelled";
+type RunControlState = "ACTIVE" | "PAUSE_REQUESTED" | "PAUSED" | "RESUME_REQUESTED" | "CANCEL_REQUESTED" | "CANCELLED";
+type RunState = RunLifecycleStatus;
 
 interface EventEnvelopeInput {
     eventType: string;
@@ -94,6 +111,10 @@ declare class EventDeliveryClient {
     }>;
     createApprovalRequest(input: CreateApprovalInput): Promise<unknown>;
     checkApprovalStatus(externalId: string): Promise<ApprovalDecisionResult>;
+    fetchPendingCommands(externalRunId: string): Promise<CommandItem[]>;
+    acknowledgeCommand(externalRunId: string, commandId: string): Promise<unknown>;
+    completeCommand(externalRunId: string, commandId: string, result?: Record<string, unknown>): Promise<unknown>;
+    failCommand(externalRunId: string, commandId: string, error?: Record<string, unknown>): Promise<unknown>;
 }
 
 interface AgentInitOptions {
@@ -130,10 +151,21 @@ declare class StewardRun {
     readonly defaultAgentName: string;
     private delivery;
     private state;
+    private controlState;
     private redactor;
+    private checkpointWaiters;
+    private processedCommandIds;
+    private pollTimer;
+    private isPolling;
+    readonly abortController: AbortController;
     constructor(delivery: EventDeliveryClient, defaultAgentName: string, options?: StartRunOptions);
     getState(): RunState;
+    getControlState(): RunControlState;
     isTerminal(): boolean;
+    checkpoint(): Promise<void>;
+    startCommandListener(options?: CommandListenerOptions): void;
+    stopCommandListener(): void;
+    private processCommand;
     emitEvent(input: Omit<EventEnvelopeInput, "runId">): Promise<{
         eventId: string;
         duplicate: boolean;
@@ -185,9 +217,18 @@ declare class StewardApprovalExpiredError extends Error {
     readonly approvalId: string;
     constructor(approvalId: string);
 }
+declare class StewardRunCancelledError extends Error {
+    readonly runId: string;
+    readonly reason?: string;
+    constructor(runId: string, reason?: string);
+}
+declare class StewardRunPausedError extends Error {
+    readonly runId: string;
+    constructor(runId: string);
+}
 
 declare const DEFAULT_SENSITIVE_KEYS: string[];
 declare function isSensitiveKey(key: string, customKeys?: string[]): boolean;
 declare function createRedactor(customKeys?: string[]): <T>(data: T) => T;
 
-export { type AgentOptions, type ApprovalDecisionResult, DEFAULT_SENSITIVE_KEYS, type GuardedToolCallOptions, type ModelCallOptions, type ModelCallOutput, type RequestApprovalOptions, type RunState, type StartRunOptions, Steward, StewardAgent, StewardApiError, StewardApprovalExpiredError, StewardApprovalRejectedError, StewardConfigError, type StewardOptions, StewardRun, StewardStateError, type ToolCallOptions, createRedactor, isSensitiveKey };
+export { type AgentOptions, type ApprovalDecisionResult, type CommandItem, type CommandListenerOptions, DEFAULT_SENSITIVE_KEYS, type GuardedToolCallOptions, type ModelCallOptions, type ModelCallOutput, type RequestApprovalOptions, type RunControlState, type RunLifecycleStatus, type RunState, type StartRunOptions, Steward, StewardAgent, StewardApiError, StewardApprovalExpiredError, StewardApprovalRejectedError, StewardConfigError, type StewardOptions, StewardRun, StewardRunCancelledError, StewardRunPausedError, StewardStateError, type ToolCallOptions, createRedactor, isSensitiveKey };

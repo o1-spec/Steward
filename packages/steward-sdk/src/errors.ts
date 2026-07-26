@@ -52,3 +52,27 @@ export class StewardApprovalExpiredError extends Error {
     Object.setPrototypeOf(this, StewardApprovalExpiredError.prototype);
   }
 }
+
+export class StewardRunCancelledError extends Error {
+  public readonly runId: string;
+  public readonly reason?: string;
+
+  constructor(runId: string, reason?: string) {
+    super(`Run '${runId}' was cancelled${reason ? `: ${reason}` : ""}`);
+    this.name = "StewardRunCancelledError";
+    this.runId = runId;
+    this.reason = reason;
+    Object.setPrototypeOf(this, StewardRunCancelledError.prototype);
+  }
+}
+
+export class StewardRunPausedError extends Error {
+  public readonly runId: string;
+
+  constructor(runId: string) {
+    super(`Run '${runId}' is currently paused`);
+    this.name = "StewardRunPausedError";
+    this.runId = runId;
+    Object.setPrototypeOf(this, StewardRunPausedError.prototype);
+  }
+}

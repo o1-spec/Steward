@@ -28,7 +28,11 @@ export const STEWARD_EVENT_TYPES = [
   "approval.rejected",
   "approval.expired",
   "approval.cancelled",
+  "command.requested",
   "command.acknowledged",
+  "command.completed",
+  "command.failed",
+  "command.expired",
 ] as const;
 
 export type StewardEventType = (typeof STEWARD_EVENT_TYPES)[number];

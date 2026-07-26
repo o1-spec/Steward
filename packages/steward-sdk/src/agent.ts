@@ -9,7 +9,11 @@ import {
 import { StewardRun } from "./run";
 import { EventDeliveryClient } from "./delivery";
 import { createRedactor } from "./redaction";
-import { StewardApprovalRejectedError, StewardApprovalExpiredError } from "./errors";
+import {
+  StewardApprovalRejectedError,
+  StewardApprovalExpiredError,
+  StewardRunCancelledError,
+} from "./errors";
 
 export interface AgentInitOptions {
   agentId?: string;
@@ -31,6 +35,7 @@ export class StewardAgent {
   }
 
   public async started(payload: { input?: unknown } = {}): Promise<void> {
+    await this.run.checkpoint();
     await this.run.emitEvent({
       eventType: "agent.started",
       agentKey: this.name,
@@ -70,6 +75,7 @@ export class StewardAgent {
     options: ModelCallOptions,
     fn: (info?: { recordOutput: (output: ModelCallOutput) => void }) => Promise<T>
   ): Promise<T> {
+    await this.run.checkpoint();
     const startTime = Date.now();
 
     await this.run.emitEvent({
@@ -130,6 +136,7 @@ export class StewardAgent {
     options: ToolCallOptions,
     fn: () => Promise<T>
   ): Promise<T> {
+    await this.run.checkpoint();
     const startTime = Date.now();
     const redactedArgs = this.redactor(options.arguments || {});
 
@@ -175,6 +182,8 @@ export class StewardAgent {
   }
 
   public async requestApproval(options: RequestApprovalOptions): Promise<ApprovalDecisionResult> {
+    await this.run.checkpoint();
+
     const externalId = options.approvalId || `appr_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
     const timeoutMs = options.timeoutMs || 300000;
     const expiresInSeconds = Math.ceil(timeoutMs / 1000);
@@ -199,8 +208,8 @@ export class StewardAgent {
     let pollIntervalMs = 500;
 
     while (Date.now() - startTime < timeoutMs) {
-      if (this.run.isTerminal()) {
-        throw new StewardApprovalExpiredError(externalId);
+      if (this.run.isTerminal() || this.run.getControlState() === "CANCELLED") {
+        throw new StewardRunCancelledError(this.run.runId, "Run was cancelled while waiting for approval");
       }
 
       const statusResult: ApprovalDecisionResult = await delivery.checkApprovalStatus(externalId);

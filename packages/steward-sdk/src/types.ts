@@ -67,4 +67,23 @@ export interface ApprovalDecisionResult {
   expiresAt: string;
 }
 
-export type RunState = "created" | "running" | "completed" | "failed" | "cancelled";
+export interface CommandItem {
+  id: string;
+  commandId: string;
+  externalId: string;
+  type: "PAUSE" | "RESUME" | "CANCEL" | string;
+  status: "PENDING" | "ACKNOWLEDGED" | "COMPLETED" | "FAILED" | "EXPIRED" | string;
+  requestedAt: string;
+  reason?: string | null;
+}
+
+export interface CommandListenerOptions {
+  pollIntervalMs?: number;
+  onPause?: (command: CommandItem) => Promise<void> | void;
+  onResume?: (command: CommandItem) => Promise<void> | void;
+  onCancel?: (command: CommandItem) => Promise<void> | void;
+}
+
+export type RunLifecycleStatus = "created" | "running" | "completed" | "failed" | "cancelled";
+export type RunControlState = "ACTIVE" | "PAUSE_REQUESTED" | "PAUSED" | "RESUME_REQUESTED" | "CANCEL_REQUESTED" | "CANCELLED";
+export type RunState = RunLifecycleStatus;

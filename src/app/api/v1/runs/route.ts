@@ -50,6 +50,7 @@ export async function GET(request: Request) {
     projectId: run.projectId,
     agentName: run.agentName,
     status: run.status,
+    controlState: run.controlState || "ACTIVE",
     startedAt: run.startedAt,
     endedAt: run.endedAt,
     createdAt: run.createdAt,
