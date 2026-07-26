@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@steward/sdk": ["./packages/steward-sdk/src/index.ts"]
     }
   },
   "include": [

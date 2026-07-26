@@ -16,6 +16,27 @@ export const AgentHeartbeatPayloadSchema = z.object({
 });
 export type AgentHeartbeatPayload = z.infer<typeof AgentHeartbeatPayloadSchema>;
 
+export const AgentStartedPayloadSchema = z.object({
+  agentId: z.string().optional(),
+  name: z.string().optional(),
+  input: z.unknown().optional(),
+});
+export type AgentStartedPayload = z.infer<typeof AgentStartedPayloadSchema>;
+
+export const AgentCompletedPayloadSchema = z.object({
+  agentId: z.string().optional(),
+  output: z.unknown().optional(),
+  summary: z.string().optional(),
+});
+export type AgentCompletedPayload = z.infer<typeof AgentCompletedPayloadSchema>;
+
+export const AgentFailedPayloadSchema = z.object({
+  agentId: z.string().optional(),
+  error: z.string().min(1, "Error message is required"),
+  code: z.string().optional(),
+});
+export type AgentFailedPayload = z.infer<typeof AgentFailedPayloadSchema>;
+
 export const RunStartedPayloadSchema = z.object({
   runId: z.string().optional(),
   task: z.string().min(1, "Task description is required"),
@@ -77,6 +98,33 @@ export const StepFailedPayloadSchema = z.object({
 });
 export type StepFailedPayload = z.infer<typeof StepFailedPayloadSchema>;
 
+export const ModelStartedPayloadSchema = z.object({
+  provider: z.string().min(1, "Provider is required"),
+  model: z.string().min(1, "Model name is required"),
+  inputSummary: z.string().optional(),
+});
+export type ModelStartedPayload = z.infer<typeof ModelStartedPayloadSchema>;
+
+export const ModelCompletedPayloadSchema = z.object({
+  provider: z.string().min(1, "Provider is required"),
+  model: z.string().min(1, "Model name is required"),
+  outputSummary: z.string().optional(),
+  durationMs: z.number().optional(),
+  inputTokens: z.number().optional(),
+  outputTokens: z.number().optional(),
+  totalTokens: z.number().optional(),
+  costUsd: z.number().optional(),
+});
+export type ModelCompletedPayload = z.infer<typeof ModelCompletedPayloadSchema>;
+
+export const ModelFailedPayloadSchema = z.object({
+  provider: z.string().min(1, "Provider is required"),
+  model: z.string().min(1, "Model name is required"),
+  error: z.string().min(1, "Error message is required"),
+  durationMs: z.number().optional(),
+});
+export type ModelFailedPayload = z.infer<typeof ModelFailedPayloadSchema>;
+
 export const ToolRequestedPayloadSchema = z.object({
   toolName: z.string().min(1, "Tool name is required"),
   arguments: z.record(z.string(), z.unknown()),
@@ -105,8 +153,11 @@ export type ToolFailedPayload = z.infer<typeof ToolFailedPayloadSchema>;
 
 export const ApprovalRequestedPayloadSchema = z.object({
   approvalId: z.string().min(1, "Approval ID is required"),
-  action: z.string().min(1, "Action is required"),
+  action: z.string().optional(),
+  toolName: z.string().optional(),
   description: z.string().optional(),
+  reason: z.string().optional(),
+  riskLevel: z.string().optional(),
   context: z.record(z.string(), z.unknown()).optional(),
 });
 export type ApprovalRequestedPayload = z.infer<typeof ApprovalRequestedPayloadSchema>;
@@ -119,6 +170,32 @@ export const ApprovalResolvedPayloadSchema = z.object({
 });
 export type ApprovalResolvedPayload = z.infer<typeof ApprovalResolvedPayloadSchema>;
 
+export const ApprovalApprovedPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  decidedBy: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type ApprovalApprovedPayload = z.infer<typeof ApprovalApprovedPayloadSchema>;
+
+export const ApprovalRejectedPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  decidedBy: z.string().optional(),
+  reason: z.string().optional(),
+});
+export type ApprovalRejectedPayload = z.infer<typeof ApprovalRejectedPayloadSchema>;
+
+export const ApprovalExpiredPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  reason: z.string().optional(),
+});
+export type ApprovalExpiredPayload = z.infer<typeof ApprovalExpiredPayloadSchema>;
+
+export const ApprovalCancelledPayloadSchema = z.object({
+  approvalId: z.string().min(1, "Approval ID is required"),
+  reason: z.string().optional(),
+});
+export type ApprovalCancelledPayload = z.infer<typeof ApprovalCancelledPayloadSchema>;
+
 export const CommandAcknowledgedPayloadSchema = z.object({
   commandId: z.string().min(1, "Command ID is required"),
   status: z.string().min(1, "Status is required"),
@@ -129,6 +206,9 @@ export type CommandAcknowledgedPayload = z.infer<typeof CommandAcknowledgedPaylo
 export const payloadSchemas: Record<StewardEventType, z.ZodTypeAny> = {
   "agent.registered": AgentRegisteredPayloadSchema,
   "agent.heartbeat": AgentHeartbeatPayloadSchema,
+  "agent.started": AgentStartedPayloadSchema,
+  "agent.completed": AgentCompletedPayloadSchema,
+  "agent.failed": AgentFailedPayloadSchema,
   "run.started": RunStartedPayloadSchema,
   "run.paused": RunPausedPayloadSchema,
   "run.resumed": RunResumedPayloadSchema,
@@ -138,11 +218,18 @@ export const payloadSchemas: Record<StewardEventType, z.ZodTypeAny> = {
   "step.started": StepStartedPayloadSchema,
   "step.completed": StepCompletedPayloadSchema,
   "step.failed": StepFailedPayloadSchema,
+  "model.started": ModelStartedPayloadSchema,
+  "model.completed": ModelCompletedPayloadSchema,
+  "model.failed": ModelFailedPayloadSchema,
   "tool.requested": ToolRequestedPayloadSchema,
   "tool.started": ToolStartedPayloadSchema,
   "tool.succeeded": ToolSucceededPayloadSchema,
   "tool.failed": ToolFailedPayloadSchema,
   "approval.requested": ApprovalRequestedPayloadSchema,
   "approval.resolved": ApprovalResolvedPayloadSchema,
+  "approval.approved": ApprovalApprovedPayloadSchema,
+  "approval.rejected": ApprovalRejectedPayloadSchema,
+  "approval.expired": ApprovalExpiredPayloadSchema,
+  "approval.cancelled": ApprovalCancelledPayloadSchema,
   "command.acknowledged": CommandAcknowledgedPayloadSchema,
 };

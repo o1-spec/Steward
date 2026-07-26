@@ -14,9 +14,11 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  apiKeys ProjectApiKey[]
-  runs    Run[]
-  events  Event[]
+  apiKeys          ProjectApiKey[]
+  runs             Run[]
+  events           Event[]
+  approvalRequests ApprovalRequest[]
+  auditLogs        AuditLog[]
 }
 
 model ProjectApiKey {
@@ -43,8 +45,9 @@ model Run {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  events  Event[]
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  events           Event[]
+  approvalRequests ApprovalRequest[]
 
   @@unique([projectId, externalId])
 }
@@ -64,4 +67,43 @@ model Event {
   run     Run     @relation(fields: [runId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, externalId])
+}
+
+model ApprovalRequest {
+  id             String    @id @default(cuid())
+  projectId      String
+  runId          String
+  externalId     String
+  agentName      String
+  toolName       String
+  arguments      Json
+  reason         String
+  riskLevel      String    @default("medium")
+  status         String    @default("PENDING")
+  requestedAt    DateTime  @default(now())
+  expiresAt      DateTime
+  decidedAt      DateTime?
+  decidedBy      String?
+  decisionReason String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  run     Run     @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, externalId])
+}
+
+model AuditLog {
+  id                String   @id @default(cuid())
+  projectId         String
+  approvalRequestId String?
+  action            String
+  outcome           String
+  actor             String
+  reason            String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

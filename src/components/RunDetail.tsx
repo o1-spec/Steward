@@ -61,7 +61,23 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false }) 
     );
   }
 
+  const hasPendingApproval = run.events.some(
+    (e) =>
+      e.type === "approval.requested" &&
+      !run.events.some((e2) =>
+        ["approval.approved", "approval.rejected", "approval.expired", "approval.cancelled"].includes(e2.type)
+      )
+  );
+
   const getStatusBadge = (status: string) => {
+    if (hasPendingApproval) {
+      return (
+        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1.5 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+          Waiting for Approval
+        </span>
+      );
+    }
     switch (status.toLowerCase()) {
       case "running":
       case "active":
@@ -189,6 +205,21 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false }) 
 
       {/* Timeline Section */}
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
+        {hasPendingApproval && (
+          <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3.5 flex items-center justify-between text-xs text-amber-300">
+            <span className="flex items-center gap-2 font-medium">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+              Operational State: Waiting for Human Approval
+            </span>
+            <a
+              href="/approvals"
+              className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded font-semibold text-amber-200 transition-colors flex items-center gap-1"
+            >
+              Open Approvals Inbox →
+            </a>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
             Event Timeline

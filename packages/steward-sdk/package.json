@@ -1,0 +1,27 @@
+{
+  "name": "@steward/sdk",
+  "version": "1.0.0",
+  "description": "Official Steward Node.js Agent SDK for real-time agent supervision and event tracking",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.10"
+  }
+}

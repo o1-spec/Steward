@@ -26,6 +26,18 @@ describe("Steward V1 Protocol Validation", () => {
       memoryUsage: 512,
       activeRunCount: 2,
     },
+    "agent.started": {
+      name: "ResearchAgent",
+      input: { task: "Search literature" },
+    },
+    "agent.completed": {
+      summary: "Agent finished literature search",
+      output: { papersFound: 10 },
+    },
+    "agent.failed": {
+      error: "Agent encountered unhandled exception",
+      code: "ERR_UNHANDLED",
+    },
     "run.started": {
       runId: "run_999",
       task: "Run system diagnosis",
@@ -60,6 +72,27 @@ describe("Steward V1 Protocol Validation", () => {
       stepId: "step_001",
       error: "Sandbox initialization failed",
     },
+    "model.started": {
+      provider: "openai",
+      model: "gpt-4o",
+      inputSummary: "Summarize research document",
+    },
+    "model.completed": {
+      provider: "openai",
+      model: "gpt-4o",
+      outputSummary: "Document summary generated",
+      durationMs: 1200,
+      inputTokens: 500,
+      outputTokens: 150,
+      totalTokens: 650,
+      costUsd: 0.0025,
+    },
+    "model.failed": {
+      provider: "openai",
+      model: "gpt-4o",
+      error: "Rate limit exceeded",
+      durationMs: 300,
+    },
     "tool.requested": {
       toolName: "run_command",
       arguments: { command: "ls -la" },
@@ -84,6 +117,24 @@ describe("Steward V1 Protocol Validation", () => {
       approvalId: "appr_100",
       approved: true,
       resolvedBy: "supervisor_1",
+    },
+    "approval.approved": {
+      approvalId: "appr_100",
+      decidedBy: "supervisor_1",
+      reason: "Permitted after review",
+    },
+    "approval.rejected": {
+      approvalId: "appr_100",
+      decidedBy: "supervisor_1",
+      reason: "Security policy violation",
+    },
+    "approval.expired": {
+      approvalId: "appr_100",
+      reason: "Request timed out after 300 seconds",
+    },
+    "approval.cancelled": {
+      approvalId: "appr_100",
+      reason: "Run terminated before decision",
     },
     "command.acknowledged": {
       commandId: "cmd_456",

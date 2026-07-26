@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "packages/steward-sdk/dist/**",
+    "packages/steward-sdk/node_modules/**",
+    "examples/node-agent/node_modules/**",
   ]),
 ]);
 
