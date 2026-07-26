@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apiKeys ProjectApiKey[]
+  runs    Run[]
+  events  Event[]
+}
+
+model ProjectApiKey {
+  id         String    @id @default(cuid())
+  projectId  String
+  name       String
+  keyPrefix  String
+  keyHash    String
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Run {
+  id         String    @id @default(cuid())
+  projectId  String
+  externalId String
+  agentName  String
+  status     String
+  startedAt  DateTime
+  endedAt    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  events  Event[]
+
+  @@unique([projectId, externalId])
+}
+
+model Event {
+  id         String   @id @default(cuid())
+  projectId  String
+  runId      String
+  externalId String
+  type       String
+  timestamp  DateTime
+  sequence   Int?
+  payload    Json
+  createdAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  run     Run     @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, externalId])
+}
