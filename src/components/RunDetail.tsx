@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { EventCard, EventItem } from "./EventCard";
 import { formatDuration, formatTimestamp } from "@/lib/formatters";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
 
 export interface RunDetailData {
   id: string;
@@ -38,14 +40,14 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
 
   if (isLoading) {
     return (
-      <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+      <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-slate-950 text-slate-200">
         <div className="space-y-3 animate-pulse">
           <div className="h-7 bg-slate-900 rounded w-1/3" />
           <div className="h-4 bg-slate-900/60 rounded w-1/4" />
         </div>
         <div className="space-y-4 pt-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-slate-900/40 border border-slate-800/60 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-slate-900/40 border border-slate-800 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -54,15 +56,15 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
 
   if (!run) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-950/20">
-        <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-4 shadow-inner">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-950 text-slate-300">
+        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-3">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
           </svg>
         </div>
-        <h3 className="text-base font-semibold text-slate-200">Select a Run to Supervise</h3>
+        <h3 className="text-sm font-semibold text-slate-200">Select an Agent Run</h3>
         <p className="text-xs text-slate-400 max-w-sm mt-1">
-          Choose an agent run from the left menu to inspect its real-time event timeline and execution state.
+          Choose a run from the left panel to inspect real-time events, model calls, and cooperative execution controls.
         </p>
       </div>
     );
@@ -110,72 +112,43 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
 
   const getControlStateBadge = () => {
     if (isTerminal) {
-      return (
-        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
-          Terminal ({lifecycleStatus})
-        </span>
-      );
+      if (lifecycleStatus === "COMPLETED") return <Badge variant="completed">COMPLETED</Badge>;
+      if (lifecycleStatus === "FAILED") return <Badge variant="failed">FAILED</Badge>;
+      return <Badge variant="cancelled">CANCELLED</Badge>;
     }
 
     switch (controlState) {
       case "PAUSE_REQUESTED":
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            Pause Requested
-          </span>
-        );
+        return <Badge variant="waiting">PAUSE REQUESTED</Badge>;
       case "PAUSED":
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            Paused
-          </span>
-        );
+        return <Badge variant="waiting">PAUSED</Badge>;
       case "RESUME_REQUESTED":
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-blue-400" />
-            Resume Requested
-          </span>
-        );
+        return <Badge variant="brand">RESUME REQUESTED</Badge>;
       case "CANCEL_REQUESTED":
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-rose-400" />
-            Cancel Requested
-          </span>
-        );
+        return <Badge variant="failed">CANCEL REQUESTED</Badge>;
       case "ACTIVE":
       default:
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Active
-          </span>
-        );
+        return <Badge variant="running">ACTIVE</Badge>;
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden">
-      {/* Run Header */}
-      <header className="px-8 py-5 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md">
+    <div className="flex-1 flex flex-col min-w-0 bg-slate-950 text-slate-200 overflow-hidden">
+      {/* Header */}
+      <header className="px-6 py-4 border-b border-slate-800 bg-slate-900/80">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-slate-100 tracking-tight font-mono">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-sm font-bold text-slate-100 tracking-tight font-mono">
                 {run.externalId}
               </h2>
               {getControlStateBadge()}
               {hasPendingApproval && (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
-                  🛡️ Approval Pending
-                </span>
+                <Badge variant="waiting">APPROVAL PENDING</Badge>
               )}
             </div>
             <p className="text-xs text-slate-400 mt-1 font-mono">
-              Agent: <span className="text-indigo-400 font-semibold">{run.agentName}</span>
+              Agent: <span className="text-blue-400 font-medium">{run.agentName}</span>
               <span className="mx-2">•</span>
               Started {formatTimestamp(run.startedAt)}
               {run.endedAt && (
@@ -187,70 +160,50 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
             </p>
           </div>
 
-          {/* Cooperative Control Buttons */}
+          {/* Cooperative Control Actions */}
           {!isTerminal && (
             <div className="flex items-center gap-2">
               {controlState === "ACTIVE" && (
-                <button
+                <Button
+                  variant="amber"
+                  size="sm"
+                  isLoading={isSubmittingCommand}
                   onClick={() => handleSendCommand("PAUSE", "Human operator paused run")}
-                  disabled={isSubmittingCommand}
-                  className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   ⏸️ Pause Agent
-                </button>
-              )}
-
-              {controlState === "PAUSE_REQUESTED" && (
-                <button
-                  disabled
-                  className="px-3.5 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg text-xs font-semibold opacity-75 flex items-center gap-1.5"
-                >
-                  ⏳ Pause Requested...
-                </button>
+                </Button>
               )}
 
               {controlState === "PAUSED" && (
-                <button
+                <Button
+                  variant="success"
+                  size="sm"
+                  isLoading={isSubmittingCommand}
                   onClick={() => handleSendCommand("RESUME", "Human operator resumed run")}
-                  disabled={isSubmittingCommand}
-                  className="px-3.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   ▶️ Resume Agent
-                </button>
-              )}
-
-              {controlState === "RESUME_REQUESTED" && (
-                <button
-                  disabled
-                  className="px-3.5 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-semibold opacity-75 flex items-center gap-1.5"
-                >
-                  ⏳ Resume Requested...
-                </button>
+                </Button>
               )}
 
               {controlState !== "CANCEL_REQUESTED" ? (
-                <button
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  isLoading={isSubmittingCommand}
                   onClick={() => setShowCancelModal(true)}
-                  disabled={isSubmittingCommand}
-                  className="px-3.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   🛑 Cancel Run
-                </button>
+                </Button>
               ) : (
-                <button
-                  disabled
-                  className="px-3.5 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg text-xs font-semibold opacity-75 flex items-center gap-1.5"
-                >
-                  ⏳ Cancel Requested...
-                </button>
+                <span className="text-xs font-mono text-rose-400">Cancel Requested...</span>
               )}
             </div>
           )}
         </div>
 
         {commandError && (
-          <div className="mt-3 p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs text-rose-300 flex items-center justify-between">
-            <span>Command Error: {commandError}</span>
+          <div className="mt-3 p-2.5 bg-rose-950/60 border border-rose-800 rounded-md text-xs text-rose-300 flex items-center justify-between font-mono">
+            <span>Error: {commandError}</span>
             <button onClick={() => setCommandError(null)} className="text-rose-400 hover:text-rose-200">
               ✕
             </button>
@@ -258,17 +211,17 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
         )}
       </header>
 
-      {/* Timeline Section */}
+      {/* Timeline Stream Area */}
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
         {hasPendingApproval && (
           <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3.5 flex items-center justify-between text-xs text-amber-300">
             <span className="flex items-center gap-2 font-medium">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-              Operational State: Waiting for Human Approval
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              Operational Checkpoint: Waiting for Human Approval
             </span>
             <a
               href="/approvals"
-              className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded font-semibold text-amber-200 transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded font-semibold text-amber-200 transition-colors"
             >
               Open Approvals Inbox →
             </a>
@@ -277,13 +230,13 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
 
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Event Timeline
+            Execution Event Stream
           </h3>
-          <span className="text-xs font-mono text-slate-500">Chronological Stream ({run.events.length} events)</span>
+          <span className="text-xs font-mono text-slate-400">{run.events.length} events</span>
         </div>
 
         {run.events.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 text-xs">
+          <div className="p-8 text-center text-slate-500 text-xs font-mono">
             No events recorded yet for this run.
           </div>
         ) : (
@@ -297,13 +250,13 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
 
       {/* Cancel Confirmation Modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <span>⚠️ Confirm Agent Cancellation</span>
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              This will request the agent to cancel execution at the next cooperative checkpoint. Pending network requests and guarded tools will be aborted.
+              This sends a cancel command to the connected SDK. The run will abort safely at the next cooperative checkpoint.
             </p>
 
             <div>
@@ -313,25 +266,27 @@ export const RunDetail: React.FC<RunDetailProps> = ({ run, isLoading = false, on
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                placeholder="e.g. Unusual tool behavior observed during research..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-rose-500/50 min-h-17.5"
+                placeholder="Unusual tool behavior or manual operator intervention..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-rose-500 min-h-18 font-mono"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition-colors"
               >
-                Never mind
-              </button>
-              <button
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                isLoading={isSubmittingCommand}
                 onClick={() => handleSendCommand("CANCEL", cancelReason || "Cancelled from dashboard")}
-                disabled={isSubmittingCommand}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
               >
                 Confirm Cancellation
-              </button>
+              </Button>
             </div>
           </div>
         </div>

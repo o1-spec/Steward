@@ -2,6 +2,7 @@
 
 import React from "react";
 import { formatDuration, formatTimestamp } from "@/lib/formatters";
+import { Badge } from "./ui/Badge";
 
 export interface RunItem {
   id: string;
@@ -43,56 +44,36 @@ export const RunList: React.FC<RunListProps> = ({
     { label: "Cancelled", value: "cancelled" },
   ];
 
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
+  const renderStatusBadge = (status: string) => {
+    const lower = status.toLowerCase();
+    switch (lower) {
       case "running":
       case "active":
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Running
-          </span>
-        );
+        return <Badge variant="running">RUNNING</Badge>;
       case "completed":
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            Completed
-          </span>
-        );
+        return <Badge variant="completed">COMPLETED</Badge>;
       case "failed":
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-            Failed
-          </span>
-        );
+        return <Badge variant="failed">FAILED</Badge>;
       case "paused":
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            Paused
-          </span>
-        );
+        return <Badge variant="waiting" className="font-mono">PAUSED</Badge>;
       case "cancelled":
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/20">
-            Cancelled
-          </span>
-        );
+        return <Badge variant="cancelled">CANCELLED</Badge>;
       default:
-        return (
-          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-500/10 text-slate-300 border border-slate-500/20">
-            {status}
-          </span>
-        );
+        return <Badge variant="neutral">{status.toUpperCase()}</Badge>;
     }
   };
 
   return (
-    <div className="w-80 border-r border-slate-800 bg-slate-950/60 flex flex-col shrink-0 h-screen overflow-hidden">
+    <div className="w-80 border-r border-slate-800 bg-slate-950 flex flex-col shrink-0 h-screen overflow-hidden text-slate-200">
       {/* Search & Filter Header */}
-      <div className="p-4 border-b border-slate-800/80 space-y-3">
+      <div className="p-4 border-b border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-sm text-slate-200">Runs</h2>
-          <span className="text-xs font-mono text-slate-500">{runs.length} runs</span>
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-slate-400">
+            Agent Runs
+          </h2>
+          <span className="text-xs font-mono text-slate-400 font-medium">
+            {runs.length} {runs.length === 1 ? "run" : "runs"}
+          </span>
         </div>
 
         {/* Filter Pills */}
@@ -101,10 +82,10 @@ export const RunList: React.FC<RunListProps> = ({
             <button
               key={opt.value}
               onClick={() => onStatusFilterChange(opt.value)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all shrink-0 ${
+              className={`px-2 py-1 rounded text-xs font-mono transition-all shrink-0 ${
                 statusFilter === opt.value
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                  ? "bg-blue-600 text-white font-medium"
+                  : "bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800"
               }`}
             >
               {opt.label}
@@ -114,13 +95,13 @@ export const RunList: React.FC<RunListProps> = ({
       </div>
 
       {/* List Content */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60">
+      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/80">
         {isLoading ? (
           <div className="p-4 space-y-3">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800/50 animate-pulse space-y-2"
+                className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 animate-pulse space-y-2"
               >
                 <div className="h-4 bg-slate-800 rounded w-3/4" />
                 <div className="h-3 bg-slate-800/60 rounded w-1/2" />
@@ -129,25 +110,13 @@ export const RunList: React.FC<RunListProps> = ({
           </div>
         ) : runs.length === 0 ? (
           <div className="p-8 text-center space-y-3">
-            <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
+            <div className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500 font-mono text-sm">
+              Ø
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-300">No agent runs found</p>
-              <p className="text-xs text-slate-400 mt-1">
-                Run the demo script or ingest events to populate this workspace.
+              <p className="text-xs font-semibold text-slate-300">No agent runs found</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Connect @steward/sdk or execute your agent to stream runs.
               </p>
             </div>
           </div>
@@ -158,26 +127,26 @@ export const RunList: React.FC<RunListProps> = ({
               <button
                 key={run.id}
                 onClick={() => onSelectRun(run.id)}
-                className={`w-full text-left p-3.5 transition-all flex flex-col gap-2 relative ${
+                className={`w-full text-left p-3.5 transition-all flex flex-col gap-1.5 relative ${
                   isSelected
-                    ? "bg-indigo-950/40 border-l-2 border-l-indigo-500 bg-gradient-to-r from-indigo-900/20 to-transparent"
-                    : "hover:bg-slate-900/50"
+                    ? "bg-blue-950/40 border-l-2 border-l-blue-500 text-white"
+                    : "hover:bg-slate-900/60 text-slate-300"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-sm text-slate-100 truncate">
+                  <span className="font-semibold text-xs font-mono text-slate-100 truncate">
                     {run.agentName}
                   </span>
-                  {getStatusBadge(run.status)}
+                  {renderStatusBadge(run.status)}
                 </div>
 
-                <div className="text-xs font-mono text-slate-400 truncate">
+                <div className="text-[11px] font-mono text-slate-400 truncate">
                   {run.externalId}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 font-mono">
                   <span>{formatTimestamp(run.startedAt)}</span>
-                  <div className="flex items-center gap-2 font-mono">
+                  <div className="flex items-center gap-1.5">
                     <span>{formatDuration(run.startedAt, run.endedAt)}</span>
                     <span>•</span>
                     <span>{run.eventCount} evts</span>

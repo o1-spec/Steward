@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { ConnectionStatus, ConnectionState } from "./ConnectionStatus";
+import { StewardLogo } from "./StewardLogo";
 
 interface ProjectItem {
   id: string;
@@ -89,64 +90,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const activeProject = projects.find((p) => p.id === activeProjectId) || projects[0];
 
   return (
-    <aside className="w-64 border-r border-slate-800 bg-slate-950/95 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30">
+    <aside className="w-64 border-r border-slate-800 bg-slate-950 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 font-sans text-slate-200">
       <div>
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 via-violet-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h1 className="font-bold text-lg tracking-tight text-white flex items-center gap-1.5">
-              Steward
-              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                V1
-              </span>
-            </h1>
-            <p className="text-xs text-slate-400">Supervision Workspace</p>
-          </div>
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <StewardLogo size="sm" variant="light" />
+            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
+              V1
+            </span>
+          </Link>
+          <span className="text-[10px] text-slate-500 uppercase font-mono">Workspace</span>
         </div>
 
         {/* Project Selector Dropdown */}
-        <div className="px-4 py-4 border-b border-slate-800/60 relative">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400 mb-1.5 px-2">
+        <div className="px-3 py-3 border-b border-slate-800/80 relative">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1 px-1">
             Active Project
           </div>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-sm text-slate-200 transition-all text-left"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-200 transition-all text-left"
           >
             <div className="flex items-center gap-2 truncate">
-              <span className="w-2 h-2 rounded-full bg-purple-400" />
-              <span className="font-medium truncate">{activeProject ? activeProject.name : "Select Project..."}</span>
+              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+              <span className="font-mono font-medium truncate">
+                {activeProject ? activeProject.name : "Select Project..."}
+              </span>
             </div>
-            <svg className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute left-4 right-4 top-full mt-1 z-50 bg-slate-900 rounded-xl border border-slate-800 shadow-2xl py-1 divide-y divide-slate-800/60 max-h-48 overflow-y-auto">
+            <div className="absolute left-3 right-3 top-full mt-1 z-50 bg-slate-900 rounded-lg border border-slate-800 shadow-xl py-1 divide-y divide-slate-800/60 max-h-52 overflow-y-auto">
               {projects.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => handleSelectProject(p)}
-                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-purple-600/10 transition-colors ${p.id === activeProjectId ? "text-purple-300 font-semibold bg-purple-500/10" : "text-slate-300"
-                    }`}
+                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-slate-800 transition-colors ${
+                    p.id === activeProjectId ? "text-blue-400 font-semibold bg-blue-500/10" : "text-slate-300"
+                  }`}
                 >
-                  <span className="truncate">{p.name}</span>
+                  <span className="truncate font-mono">{p.name}</span>
                   <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 shrink-0">
                     {p.role}
                   </span>
@@ -156,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Link
                 href="/onboarding"
                 onClick={() => setIsDropdownOpen(false)}
-                className="block w-full text-left px-3 py-2 text-xs text-purple-400 hover:text-purple-300 hover:bg-slate-800/50 font-medium"
+                className="block w-full text-left px-3 py-2 text-xs text-blue-400 hover:bg-slate-800 font-medium"
               >
                 + Create New Project
               </Link>
@@ -164,21 +156,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Navigation */}
-        <nav className="p-3 space-y-1">
+        {/* Navigation Section */}
+        <nav className="p-2 space-y-0.5">
           <Link
             href="/runs"
-            className={`flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${pathname === "/runs" ? "bg-purple-600/15 text-purple-300 border border-purple-500/20" : "text-slate-300 hover:bg-slate-900"
-              }`}
+            className={`flex items-center justify-between px-3 py-2 rounded-md font-medium text-xs transition-colors ${
+              pathname === "/runs"
+                ? "bg-blue-600/15 text-blue-400 border border-blue-500/20"
+                : "text-slate-300 hover:bg-slate-900 hover:text-white"
+            }`}
           >
             <div className="flex items-center gap-2.5">
-              <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <span>Agent Runs</span>
             </div>
             {activeRunCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-blue-500/20 text-blue-300">
                 {activeRunCount}
               </span>
             )}
@@ -186,8 +181,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <Link
             href="/approvals"
-            className={`flex items-center justify-between px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${pathname === "/approvals" ? "bg-purple-600/15 text-purple-300 border border-purple-500/20" : "text-slate-300 hover:bg-slate-900"
-              }`}
+            className={`flex items-center justify-between px-3 py-2 rounded-md font-medium text-xs transition-colors ${
+              pathname === "/approvals"
+                ? "bg-amber-500/15 text-amber-300 border border-amber-500/20"
+                : "text-slate-300 hover:bg-slate-900 hover:text-white"
+            }`}
           >
             <div className="flex items-center gap-2.5">
               <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>Approvals Inbox</span>
             </div>
             {pendingApprovalsCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/20 text-amber-300">
                 {pendingApprovalsCount}
               </span>
             )}
@@ -205,30 +203,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {activeProject && (
             <Link
               href={`/projects/${activeProject.id}/settings/api-keys`}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${pathname?.includes("/settings/api-keys") ? "bg-purple-600/15 text-purple-300 border border-purple-500/20" : "text-slate-300 hover:bg-slate-900"
-                }`}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-md font-medium text-xs transition-colors ${
+                pathname?.includes("/settings/api-keys")
+                  ? "bg-blue-600/15 text-blue-400 border border-blue-500/20"
+                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
+              }`}
             >
-              <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z" />
               </svg>
-              <span>API Keys Settings</span>
+              <span>API Keys & Settings</span>
             </Link>
           )}
         </nav>
       </div>
 
       {/* Footer User Profile & Connection Status */}
-      <div className="border-t border-slate-800/80 bg-slate-950/40 divide-y divide-slate-800/60">
+      <div className="border-t border-slate-800 bg-slate-950/60 divide-y divide-slate-800/80">
         {user && (
-          <div className="p-4 flex items-center justify-between gap-2">
+          <div className="p-3 flex items-center justify-between gap-2">
             <div className="truncate">
-              <div className="text-xs font-semibold text-white truncate">{user.name || user.email}</div>
-              <div className="text-[10px] text-slate-400 truncate">{user.email}</div>
+              <div className="text-xs font-medium text-slate-200 truncate">{user.name || user.email}</div>
+              <div className="text-[10px] text-slate-500 truncate font-mono">{user.email}</div>
             </div>
             <button
               onClick={handleLogout}
               title="Sign out"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              aria-label="Sign out of Steward"
+              className="p-1 rounded text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -237,8 +239,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        <div className="p-4 flex items-center justify-between">
-          <span className="text-xs text-slate-400 font-medium">Stream Status</span>
+        <div className="px-3 py-2.5 flex items-center justify-between">
+          <span className="text-[11px] text-slate-400 font-mono">SSE Stream</span>
           <ConnectionStatus status={connectionState} />
         </div>
       </div>
