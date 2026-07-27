@@ -166,11 +166,14 @@ export const PublicDocumentLayout: React.FC<PublicDocumentLayoutProps> = ({
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-stone-600">
-              <Link
-                href="/docs"
-                className={activePath === "/docs" ? "text-stone-900 font-bold" : "hover:text-stone-900"}
-              >
-                Docs
+              <Link href="/#how-it-works" className="hover:text-stone-900 transition-colors">
+                How it works
+              </Link>
+              <Link href="/#features" className="hover:text-stone-900 transition-colors">
+                Product
+              </Link>
+              <Link href="/#examples" className="hover:text-stone-900 transition-colors">
+                Use Cases
               </Link>
               <Link
                 href="/security"
@@ -179,20 +182,20 @@ export const PublicDocumentLayout: React.FC<PublicDocumentLayoutProps> = ({
                 Security
               </Link>
               <Link
-                href="/privacy"
-                className={activePath === "/privacy" ? "text-stone-900 font-bold" : "hover:text-stone-900"}
+                href="/docs"
+                className={activePath === "/docs" ? "text-stone-900 font-bold" : "hover:text-stone-900"}
               >
-                Privacy
-              </Link>
-              <Link
-                href="/terms"
-                className={activePath === "/terms" ? "text-stone-900 font-bold" : "hover:text-stone-900"}
-              >
-                Terms
+                Docs
               </Link>
             </nav>
 
             <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="hidden sm:inline text-xs font-medium text-stone-700 hover:text-stone-900 px-2.5 py-1.5 transition-colors"
+              >
+                Sign in
+              </Link>
               <Link href="/runs" className="text-xs font-medium text-blue-600 hover:text-blue-700">
                 Dashboard →
               </Link>

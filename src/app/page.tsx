@@ -98,21 +98,21 @@ await run.started({ task: "Deploy production container" });`;
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-7 text-xs font-medium text-stone-600">
-              <a href="#how-it-works" className="hover:text-stone-900 transition-colors">
+              <Link href="/#how-it-works" className="hover:text-stone-900 transition-colors">
                 How it works
-              </a>
-              <a href="#features" className="hover:text-stone-900 transition-colors">
+              </Link>
+              <Link href="/#features" className="hover:text-stone-900 transition-colors">
                 Product
-              </a>
-              <a href="#examples" className="hover:text-stone-900 transition-colors">
+              </Link>
+              <Link href="/#examples" className="hover:text-stone-900 transition-colors">
                 Use Cases
-              </a>
-              <a href="#security" className="hover:text-stone-900 transition-colors">
+              </Link>
+              <Link href="/security" className="hover:text-stone-900 transition-colors">
                 Security
-              </a>
-              <a href="#integration" className="hover:text-stone-900 transition-colors">
+              </Link>
+              <Link href="/docs" className="hover:text-stone-900 transition-colors">
                 Docs
-              </a>
+              </Link>
             </nav>
 
             <div className="hidden md:flex items-center gap-3">
@@ -143,13 +143,15 @@ await run.started({ task: "Deploy production container" });`;
               aria-expanded={mobileMenuOpen}
               className="md:hidden p-1.5 rounded-lg text-stone-700 hover:bg-stone-200/60"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {mobileMenuOpen ? (
+              {mobileMenuOpen ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                ) : (
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+                </svg>
+              )}
             </button>
           </div>
         </PageContainer>
@@ -157,41 +159,41 @@ await run.started({ task: "Deploy production container" });`;
         {/* Accessible Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-b border-stone-200 bg-[#FAF8F5] px-4 py-4 space-y-3 text-sm font-medium">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
             >
               How it works
-            </a>
-            <a
-              href="#features"
+            </Link>
+            <Link
+              href="/#features"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
             >
               Product
-            </a>
-            <a
-              href="#examples"
+            </Link>
+            <Link
+              href="/#examples"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
             >
               Use Cases
-            </a>
-            <a
-              href="#security"
+            </Link>
+            <Link
+              href="/security"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
             >
               Security
-            </a>
-            <a
-              href="#integration"
+            </Link>
+            <Link
+              href="/docs"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
             >
               Docs
-            </a>
+            </Link>
             <div className="pt-2 border-t border-stone-200 flex flex-col gap-2">
               {isAuthenticated ? (
                 <Link href="/runs" onClick={() => setMobileMenuOpen(false)}>
