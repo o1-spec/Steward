@@ -30,7 +30,7 @@ export default function LandingPage() {
       .then((res) => {
         if (res.ok) setIsAuthenticated(true);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Mobile Menu Focus & Scroll Locking
@@ -84,12 +84,12 @@ await run.started({ task: "Deploy production container" });`;
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-stone-warm text-stone-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* Steward Initial Entry Loader */}
       <StewardLoader />
 
       {/* 1. Header Navigation */}
-      <header className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-stone-200/80 transition-colors">
+      <header className="sticky top-0 z-40 bg-stone-warm/90 backdrop-blur-md border-b border-stone-200/80 transition-colors">
         <PageContainer>
           <div className="h-14 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
@@ -158,7 +158,7 @@ await run.started({ task: "Deploy production container" });`;
 
         {/* Accessible Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-stone-200 bg-[#FAF8F5] px-4 py-4 space-y-3 text-sm font-medium">
+          <div className="md:hidden border-b border-stone-200 bg-stone-warm px-4 py-4 space-y-3 text-sm font-medium">
             <Link
               href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
@@ -356,7 +356,7 @@ await run.started({ task: "Deploy production container" });`;
                       <div className="border-t border-stone-100 pt-2">
                         <span className="text-stone-500 text-[11px] block mb-1">Redacted Arguments:</span>
                         <pre className="bg-stone-950 text-stone-200 p-2 rounded font-mono text-[10px] overflow-x-auto">
-{`{
+                          {`{
   "bucket": "prod-backups-2026",
   "accessKey": "[REDACTED]"
 }`}
@@ -428,9 +428,12 @@ await run.started({ task: "Deploy production container" });`;
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
-                <div className="w-7 h-7 rounded-md bg-stone-200 text-stone-800 flex items-center justify-center font-bold text-xs">
-                  !
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200/90 space-y-2">
+                <div className="w-7 h-7 rounded-md bg-stone-200/80 text-stone-800 flex items-center justify-center font-bold text-xs">
+                  <svg className="w-4 h-4 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
                 </div>
                 <h3 className="text-sm font-semibold text-stone-900">Actions happen out of sight</h3>
                 <p className="text-xs text-stone-600 leading-relaxed">
@@ -438,9 +441,11 @@ await run.started({ task: "Deploy production container" });`;
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
-                <div className="w-7 h-7 rounded-md bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs">
-                  ⚠️
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200/90 space-y-2">
+                <div className="w-7 h-7 rounded-md bg-amber-100/80 text-amber-900 flex items-center justify-center font-bold text-xs">
+                  <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                 </div>
                 <h3 className="text-sm font-semibold text-stone-900">Sensitive tools execute immediately</h3>
                 <p className="text-xs text-stone-600 leading-relaxed">
@@ -448,9 +453,11 @@ await run.started({ task: "Deploy production container" });`;
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
-                <div className="w-7 h-7 rounded-md bg-rose-100 text-rose-900 flex items-center justify-center font-bold text-xs">
-                  🛑
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200/90 space-y-2">
+                <div className="w-7 h-7 rounded-md bg-rose-100/80 text-rose-900 flex items-center justify-center font-bold text-xs">
+                  <svg className="w-4 h-4 text-rose-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
                 </div>
                 <h3 className="text-sm font-semibold text-stone-900">Intervention comes too late</h3>
                 <p className="text-xs text-stone-600 leading-relaxed">
@@ -460,12 +467,12 @@ await run.started({ task: "Deploy production container" });`;
             </div>
 
             <DragScroll className="bg-stone-950 text-stone-200 p-5 rounded-xl border border-stone-800 space-y-4 max-w-3xl mx-auto font-mono text-xs shadow-md">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-[11px] text-stone-400 min-w-[500px]">
+              <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-[11px] text-stone-400 min-w-125">
                 <span>UNSUPERVISED VS STEWARD CONTROL LAYER</span>
                 <span className="text-emerald-400">Deterministic Safety Gate</span>
               </div>
 
-              <div className="p-3 rounded bg-stone-900 border border-stone-800 opacity-60 min-w-[500px]">
+              <div className="p-3 rounded bg-stone-900 border border-stone-800 opacity-60 min-w-125">
                 <div className="text-[10px] text-rose-400 uppercase tracking-wider mb-1 font-semibold">Unsupervised Execution</div>
                 <div className="flex items-center gap-2 text-[11px]">
                   <span className="text-stone-300">Agent Intention</span>
@@ -476,7 +483,7 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              <div className="p-3 rounded bg-stone-900 border border-blue-500/40 ring-1 ring-blue-500/20 min-w-[500px]">
+              <div className="p-3 rounded bg-stone-900 border border-blue-500/40 ring-1 ring-blue-500/20 min-w-125">
                 <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1 font-semibold">Steward Supervised Execution</div>
                 <div className="flex items-center gap-2 text-[11px]">
                   <span className="text-stone-300">Agent Intention</span>
@@ -511,7 +518,7 @@ await run.started({ task: "Deploy production container" });`;
             />
 
             <div className="relative">
-              <div className="hidden lg:block absolute top-6 left-12 right-12 h-0.5 bg-stone-200 -z-0" />
+              <div className="hidden lg:block absolute top-6 left-12 right-12 h-0.5 bg-stone-200 z-0" />
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
                 <div className="space-y-3 bg-white p-5 rounded-xl border border-stone-200/80 shadow-2xs">
@@ -590,35 +597,32 @@ await run.started({ task: "Deploy production container" });`;
               subtitle="Follow every action, review sensitive requests, and step in without losing the execution history."
             />
 
-            <div className="bg-[#FAF8F5] rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-xs">
+            <div className="bg-stone-warm rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-xs">
               <DragScroll className="flex border-b border-stone-200 gap-4 sm:gap-8 text-xs sm:text-sm font-medium pb-1">
                 <button
                   onClick={() => setActiveStory("timeline")}
-                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
-                    activeStory === "timeline"
-                      ? "border-blue-600 text-blue-600 font-semibold"
-                      : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${activeStory === "timeline"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                    }`}
                 >
                   1. Understand every run
                 </button>
                 <button
                   onClick={() => setActiveStory("approval")}
-                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
-                    activeStory === "approval"
-                      ? "border-blue-600 text-blue-600 font-semibold"
-                      : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${activeStory === "approval"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                    }`}
                 >
                   2. Hold sensitive actions
                 </button>
                 <button
                   onClick={() => setActiveStory("control")}
-                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
-                    activeStory === "control"
-                      ? "border-blue-600 text-blue-600 font-semibold"
-                      : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                  className={`pb-2.5 border-b-2 transition-colors shrink-0 ${activeStory === "control"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                    }`}
                 >
                   3. Intervene safely
                 </button>
@@ -651,7 +655,7 @@ await run.started({ task: "Deploy production container" });`;
                   <DragScroll className="bg-stone-950 text-stone-200 p-4 rounded-lg font-mono text-xs space-y-2 shadow-inner">
                     <div className="text-stone-500 text-[11px] font-sans">{`// Steward Event Envelope`}</div>
                     <pre className="text-stone-300 text-[11px]">
-{`{
+                      {`{
   "specVersion": "1.0",
   "eventId": "evt_98f421a",
   "eventType": "tool.succeeded",
@@ -725,7 +729,7 @@ await run.started({ task: "Deploy production container" });`;
                   <DragScroll className="bg-stone-900 text-stone-100 p-4 rounded-lg font-mono text-xs space-y-2">
                     <div className="text-stone-400 text-[11px] font-sans">{`// Command Listener`}</div>
                     <pre className="text-blue-300 text-[11px]">
-{`run.startCommandListener({
+                      {`run.startCommandListener({
   onPause: async (cmd) => console.log("Paused:", cmd.reason),
   onResume: async (cmd) => console.log("Resumed:", cmd.reason),
   onCancel: async (cmd) => console.log("Cancelled:", cmd.reason),
@@ -898,28 +902,28 @@ await run.checkpoint();`}
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200 space-y-2">
                 <div className="font-semibold text-sm text-stone-900">1. Keys identify projects</div>
                 <p className="text-xs text-stone-600 leading-relaxed">
                   Complete secret keys are shown once. Only SHA-256 hashes are stored.
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200 space-y-2">
                 <div className="font-semibold text-sm text-stone-900">2. Sensitive fields redacted</div>
                 <p className="text-xs text-stone-600 leading-relaxed">
                   Passwords, tokens, and secret parameters are masked with <code className="bg-stone-200 px-1 rounded text-[11px]">[REDACTED]</code>.
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="p-5 rounded-xl bgg-stone-warm border border-stone-200 space-y-2">
                 <div className="font-semibold text-sm text-stone-900">3. Decisions recorded</div>
                 <p className="text-xs text-stone-600 leading-relaxed">
                   Human approvals, project modifications, and key revocations are stored in an append-only log.
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200 space-y-2">
                 <div className="font-semibold text-sm text-stone-900">4. Agents remain local</div>
                 <p className="text-xs text-stone-600 leading-relaxed">
                   Steward does not host agent code or execute tools. Control signals are cooperative.
@@ -928,7 +932,7 @@ await run.checkpoint();`}
             </div>
 
             <DragScroll className="p-5 rounded-xl bg-stone-900 text-stone-200 font-mono text-xs max-w-3xl mx-auto shadow-sm text-center">
-              <div className="flex items-center justify-center gap-2 sm:gap-4 text-[11px] min-w-[550px]">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 text-[11px] min-w-137.5">
                 <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100 shrink-0">
                   Connected Agent
                 </span>
@@ -983,7 +987,7 @@ await run.checkpoint();`}
                 </div>
                 <DragScroll>
                   <pre className="text-stone-300 leading-relaxed text-[11px]">
-{`import { Steward } from "@steward/sdk";
+                    {`import { Steward } from "@steward/sdk";
 
 const steward = new Steward({
   apiKey: process.env.STEWARD_API_KEY!,
