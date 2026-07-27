@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { StewardLoader } from "@/components/StewardLoader";
 import { PageContainer, Section, SectionHeader } from "@/components/ui/Layout";
+import { DragScroll } from "@/components/ui/DragScroll";
 
 export default function LandingPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,7 +17,7 @@ export default function LandingPage() {
   const [interactiveDecision, setInteractiveDecision] = useState<"pending" | "approved" | "rejected">("pending");
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // Hero Preview Animation Sequence State (starts at step 1 for animation, or 3 if reduced motion)
+  // Hero Preview Animation Sequence State
   const [previewStep, setPreviewStep] = useState(() => {
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 3 : 1;
@@ -456,15 +457,15 @@ await run.started({ task: "Deploy production container" });`;
               </div>
             </div>
 
-            <div className="bg-stone-950 text-stone-200 p-5 rounded-xl border border-stone-800 space-y-4 max-w-3xl mx-auto font-mono text-xs shadow-md">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-[11px] text-stone-400">
+            <DragScroll className="bg-stone-950 text-stone-200 p-5 rounded-xl border border-stone-800 space-y-4 max-w-3xl mx-auto font-mono text-xs shadow-md">
+              <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-[11px] text-stone-400 min-w-[500px]">
                 <span>UNSUPERVISED VS STEWARD CONTROL LAYER</span>
                 <span className="text-emerald-400">Deterministic Safety Gate</span>
               </div>
 
-              <div className="p-3 rounded bg-stone-900 border border-stone-800 opacity-60">
+              <div className="p-3 rounded bg-stone-900 border border-stone-800 opacity-60 min-w-[500px]">
                 <div className="text-[10px] text-rose-400 uppercase tracking-wider mb-1 font-semibold">Unsupervised Execution</div>
-                <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <div className="flex items-center gap-2 text-[11px]">
                   <span className="text-stone-300">Agent Intention</span>
                   <span className="text-stone-500">→</span>
                   <span className="text-rose-400">Direct Tool Call (No Review)</span>
@@ -473,9 +474,9 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              <div className="p-3 rounded bg-stone-900 border border-blue-500/40 ring-1 ring-blue-500/20">
+              <div className="p-3 rounded bg-stone-900 border border-blue-500/40 ring-1 ring-blue-500/20 min-w-[500px]">
                 <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1 font-semibold">Steward Supervised Execution</div>
-                <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <div className="flex items-center gap-2 text-[11px]">
                   <span className="text-stone-300">Agent Intention</span>
                   <span className="text-stone-500">→</span>
                   <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
@@ -487,7 +488,7 @@ await run.started({ task: "Deploy production container" });`;
                   <span className="text-stone-200 font-medium">Safe Tool Execution</span>
                 </div>
               </div>
-            </div>
+            </DragScroll>
 
             <div className="text-center pt-6">
               <p className="text-xs sm:text-sm font-medium text-stone-900 italic">
@@ -588,7 +589,7 @@ await run.started({ task: "Deploy production container" });`;
             />
 
             <div className="bg-[#FAF8F5] rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-xs">
-              <div className="flex border-b border-stone-200 gap-4 sm:gap-8 text-xs sm:text-sm font-medium overflow-x-auto">
+              <DragScroll className="flex border-b border-stone-200 gap-4 sm:gap-8 text-xs sm:text-sm font-medium pb-1">
                 <button
                   onClick={() => setActiveStory("timeline")}
                   className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
@@ -619,7 +620,7 @@ await run.started({ task: "Deploy production container" });`;
                 >
                   3. Intervene safely
                 </button>
-              </div>
+              </DragScroll>
 
               {activeStory === "timeline" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
@@ -645,7 +646,7 @@ await run.started({ task: "Deploy production container" });`;
                       </li>
                     </ul>
                   </div>
-                  <div className="bg-stone-950 text-stone-200 p-4 rounded-lg font-mono text-xs space-y-2 overflow-x-auto shadow-inner">
+                  <DragScroll className="bg-stone-950 text-stone-200 p-4 rounded-lg font-mono text-xs space-y-2 shadow-inner">
                     <div className="text-stone-500 text-[11px] font-sans">{`// Steward Event Envelope`}</div>
                     <pre className="text-stone-300 text-[11px]">
 {`{
@@ -661,7 +662,7 @@ await run.started({ task: "Deploy production container" });`;
   }
 }`}
                     </pre>
-                  </div>
+                  </DragScroll>
                 </div>
               )}
 
@@ -719,7 +720,7 @@ await run.started({ task: "Deploy production container" });`;
                       </li>
                     </ul>
                   </div>
-                  <div className="bg-stone-900 text-stone-100 p-4 rounded-lg font-mono text-xs space-y-2">
+                  <DragScroll className="bg-stone-900 text-stone-100 p-4 rounded-lg font-mono text-xs space-y-2">
                     <div className="text-stone-400 text-[11px] font-sans">{`// Command Listener`}</div>
                     <pre className="text-blue-300 text-[11px]">
 {`run.startCommandListener({
@@ -730,7 +731,7 @@ await run.started({ task: "Deploy production container" });`;
 
 await run.checkpoint();`}
                     </pre>
-                  </div>
+                  </DragScroll>
                 </div>
               )}
             </div>
@@ -757,15 +758,15 @@ await run.checkpoint();`}
                     </div>
                     <h3 className="text-base font-semibold text-stone-900">Deployment Agent</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
-                    <span>Agent starts</span>
+                  <DragScroll className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500">
+                    <span className="shrink-0">Agent starts</span>
                     <span>→</span>
-                    <span>Work observed</span>
+                    <span className="shrink-0">Work observed</span>
                     <span>→</span>
-                    <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Action held</span>
+                    <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded shrink-0">Action held</span>
                     <span>→</span>
-                    <span className="text-emerald-700 font-bold">Human decides</span>
-                  </div>
+                    <span className="text-emerald-700 font-bold shrink-0">Human decides</span>
+                  </DragScroll>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
@@ -802,15 +803,15 @@ await run.checkpoint();`}
                     </div>
                     <h3 className="text-base font-semibold text-stone-900">Customer-Support Agent</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
-                    <span>Agent starts</span>
+                  <DragScroll className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500">
+                    <span className="shrink-0">Agent starts</span>
                     <span>→</span>
-                    <span>Work observed</span>
+                    <span className="shrink-0">Work observed</span>
                     <span>→</span>
-                    <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Action held</span>
+                    <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded shrink-0">Action held</span>
                     <span>→</span>
-                    <span className="text-emerald-700 font-bold">Human decides</span>
-                  </div>
+                    <span className="text-emerald-700 font-bold shrink-0">Human decides</span>
+                  </DragScroll>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
@@ -847,15 +848,15 @@ await run.checkpoint();`}
                     </div>
                     <h3 className="text-base font-semibold text-stone-900">Research Agent</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
-                    <span>Agent starts</span>
+                  <DragScroll className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500">
+                    <span className="shrink-0">Agent starts</span>
                     <span>→</span>
-                    <span>Work observed</span>
+                    <span className="shrink-0">Work observed</span>
                     <span>→</span>
-                    <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">Telemetry recorded</span>
+                    <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded shrink-0">Telemetry recorded</span>
                     <span>→</span>
-                    <span className="text-stone-700 font-bold">Run completed</span>
-                  </div>
+                    <span className="text-stone-700 font-bold shrink-0">Run completed</span>
+                  </DragScroll>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
@@ -924,29 +925,29 @@ await run.checkpoint();`}
               </div>
             </div>
 
-            <div className="p-5 rounded-xl bg-stone-900 text-stone-200 font-mono text-xs overflow-x-auto max-w-3xl mx-auto shadow-sm text-center">
-              <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap text-[11px]">
-                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100">
+            <DragScroll className="p-5 rounded-xl bg-stone-900 text-stone-200 font-mono text-xs max-w-3xl mx-auto shadow-sm text-center">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 text-[11px] min-w-[550px]">
+                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100 shrink-0">
                   Connected Agent
                 </span>
                 <span className="text-stone-500">→</span>
-                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-amber-300">
+                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-amber-300 shrink-0">
                   Redacted Event
                 </span>
                 <span className="text-stone-500">→</span>
-                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-blue-300">
+                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-blue-300 shrink-0">
                   Steward Timeline
                 </span>
                 <span className="text-stone-500">→</span>
-                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-emerald-300">
+                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-emerald-300 shrink-0">
                   Human Decision
                 </span>
                 <span className="text-stone-500">→</span>
-                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100">
+                <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100 shrink-0">
                   Connected Agent
                 </span>
               </div>
-            </div>
+            </DragScroll>
           </Reveal>
         </PageContainer>
       </Section>
@@ -970,7 +971,8 @@ await run.checkpoint();`}
                   {copiedCode ? "✓ Copied!" : "Copy Code"}
                 </button>
               </div>
-              <pre className="text-stone-300 leading-relaxed overflow-x-auto text-[11px]">
+              <DragScroll>
+                <pre className="text-stone-300 leading-relaxed text-[11px]">
 {`import { Steward } from "@steward/sdk";
 
 const steward = new Steward({
@@ -980,7 +982,8 @@ const steward = new Steward({
 
 const run = steward.startRun();
 await run.started({ task: "Deploy production container" });`}
-              </pre>
+                </pre>
+              </DragScroll>
             </div>
 
             <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-3 pt-8">
@@ -1031,19 +1034,22 @@ await run.started({ task: "Deploy production container" });`}
               <span>© 2026 Steward. All rights reserved.</span>
             </div>
 
-            <div className="flex items-center gap-6 font-medium text-stone-400">
+            <div className="flex flex-wrap items-center gap-6 font-medium text-stone-400">
               <a href="#features" className="hover:text-white transition-colors">
                 Product
               </a>
               <a href="#examples" className="hover:text-white transition-colors">
                 Use Cases
               </a>
-              <a href="#security" className="hover:text-white transition-colors">
-                Security
-              </a>
-              <a href="#integration" className="hover:text-white transition-colors">
+              <Link href="/docs" className="hover:text-white transition-colors">
                 Docs
-              </a>
+              </Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Terms
+              </Link>
               <a
                 href="https://github.com/o1-spec/Steward"
                 target="_blank"

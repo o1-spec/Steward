@@ -16,23 +16,23 @@ export const StewardLoader: React.FC<StewardLoaderProps> = ({
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [prefersReducedMotion] = useState(false);
-  const [progress, setProgress] = useState(15);
+  const [progress, setProgress] = useState(20);
 
   useEffect(() => {
     const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const alreadyShown = sessionStorage.getItem("stwd_intro_shown") === "true";
     const effectiveDisplayMs = alreadyShown || isReducedMotion ? 200 : minDisplayMs;
 
-    // Progress bar fill animation
+    // Progress bar fill animation (black bar)
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) {
           clearInterval(interval);
           return 90;
         }
-        return prev + 30;
+        return prev + 35;
       });
-    }, 100);
+    }, 90);
 
     const timer = setTimeout(() => {
       setProgress(100);
@@ -62,19 +62,19 @@ export const StewardLoader: React.FC<StewardLoaderProps> = ({
       className={`fixed inset-0 z-50 bg-stone-warm flex flex-col items-center justify-center transition-opacity duration-200 ${isFading ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
     >
-      <div className="flex flex-col items-center gap-4 text-stone-900">
+      <div className="flex flex-col items-center gap-5 text-stone-900">
         <StewardLogo size="lg" variant="dark" />
 
-        {/* Progress Line / Node Transition */}
+        {/* Sleek Black Progress Line */}
         {!prefersReducedMotion ? (
-          <div className="w-32 h-1 bg-stone-200 rounded-full overflow-hidden relative mt-2">
+          <div className="w-36 h-0.5 bg-stone-300/80 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-blue-600 transition-all duration-150 ease-out rounded-full"
+              className="h-full bg-stone-900 transition-all duration-150 ease-out rounded-full"
               style={{ width: `${progress}%` }}
             />
           </div>
         ) : (
-          <div className="text-xs font-mono text-stone-500 mt-1">Initializing...</div>
+          <div className="text-xs font-mono text-stone-500">Initializing...</div>
         )}
       </div>
 

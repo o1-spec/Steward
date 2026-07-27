@@ -3,6 +3,7 @@
 import React from "react";
 import { formatDuration, formatTimestamp } from "@/lib/formatters";
 import { Badge } from "./ui/Badge";
+import { DragScroll } from "./ui/DragScroll";
 
 export interface RunItem {
   id: string;
@@ -76,8 +77,8 @@ export const RunList: React.FC<RunListProps> = ({
           </span>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+        {/* Filter Pills with Drag Scroll */}
+        <DragScroll className="flex items-center gap-1 pb-1">
           {filterOptions.map((opt) => (
             <button
               key={opt.value}
@@ -91,7 +92,7 @@ export const RunList: React.FC<RunListProps> = ({
               {opt.label}
             </button>
           ))}
-        </div>
+        </DragScroll>
       </div>
 
       {/* List Content */}
