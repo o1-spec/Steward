@@ -8,45 +8,61 @@ import { Badge } from "@/components/ui/Badge";
 
 export default function LandingPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<"timeline" | "approval" | "sdk">("timeline");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeStory, setActiveStory] = useState<"timeline" | "approval" | "control">("timeline");
   const [interactiveDecision, setInteractiveDecision] = useState<"pending" | "approved" | "rejected">("pending");
+  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => {
         if (res.ok) setIsAuthenticated(true);
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
+  const handleCopyCode = () => {
+    const code = `import { Steward } from "@steward/sdk";
+
+const steward = new Steward({
+  apiKey: process.env.STEWARD_API_KEY!,
+  agentName: "deployment-agent",
+});
+
+const run = steward.startRun();
+await run.started({ task: "Deploy production container" });`;
+
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-stone-warm text-stone-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* 1. Header / Navigation */}
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
+      {/* 1. Header Navigation */}
       <header className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-stone-200/80 transition-colors">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
             <StewardLogo size="md" variant="dark" />
-            <span className="text-xs uppercase font-mono px-1.5 py-0.5 rounded bg-stone-200/60 text-stone-600 font-medium">
-              V1
-            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600">
-            <a href="#workflow" className="hover:text-stone-900 transition-colors">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-7 text-xs font-medium text-stone-600">
+            <a href="#how-it-works" className="hover:text-stone-900 transition-colors">
               How it works
             </a>
-            <a href="#product-preview" className="hover:text-stone-900 transition-colors">
+            <a href="#features" className="hover:text-stone-900 transition-colors">
               Product
             </a>
             <a href="#security" className="hover:text-stone-900 transition-colors">
               Security
             </a>
             <a href="#integration" className="hover:text-stone-900 transition-colors">
-              SDK Integration
+              Docs
             </a>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               <Link href="/runs">
                 <Button variant="primary" size="sm">
@@ -55,7 +71,7 @@ export default function LandingPage() {
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm font-medium text-stone-700 hover:text-stone-900 px-3 py-1.5 transition-colors">
+                <Link href="/login" className="text-xs font-medium text-stone-700 hover:text-stone-900 px-2.5 py-1.5 transition-colors">
                   Sign in
                 </Link>
                 <Link href="/register">
@@ -66,151 +82,220 @@ export default function LandingPage() {
               </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            className="md:hidden p-1.5 rounded-lg text-stone-700 hover:bg-stone-200/60"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-b border-stone-200 bg-[#FAF8F5] px-4 py-4 space-y-3 text-sm font-medium">
+            <a
+              href="#how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-stone-700 hover:text-stone-900"
+            >
+              How it works
+            </a>
+            <a
+              href="#features"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-stone-700 hover:text-stone-900"
+            >
+              Product
+            </a>
+            <a
+              href="#security"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-stone-700 hover:text-stone-900"
+            >
+              Security
+            </a>
+            <a
+              href="#integration"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-stone-700 hover:text-stone-900"
+            >
+              Docs
+            </a>
+            <div className="pt-2 border-t border-stone-200 flex flex-col gap-2">
+              {isAuthenticated ? (
+                <Link href="/runs" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="primary" size="sm" className="w-full">
+                    Dashboard →
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="primary" size="sm" className="w-full">
+                      Connect an agent
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden bg-grid-pattern">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
+      <section className="relative pt-10 pb-12 sm:pt-14 sm:pb-16 md:pt-16 md:pb-20 overflow-hidden">
+        {/* Subtle Faded Grid Background */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none mask-radial-gradient" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/80 text-xs font-medium text-stone-700">
-              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse-subtle" />
-              <span>Human supervision workspace for autonomous AI agents</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse-subtle" />
+              <span>Human oversight for autonomous agents</span>
             </div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl tracking-tight text-stone-900 leading-[1.15]">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl tracking-tight text-stone-900 leading-[1.15]">
               See what your agents are doing. <br />
               <span className="italic font-normal text-stone-800">Control what they’re allowed to do.</span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
-              Steward gives engineering teams a live record of agent activity, human approval gates for sensitive actions, and cooperative controls for pausing or cancelling execution.
+            <p className="text-sm sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed">
+              Inspect every run, hold sensitive actions for approval, and intervene when an agent needs human judgment.
             </p>
 
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href={isAuthenticated ? "/runs" : "/register"} className="w-full sm:w-auto">
-                <Button variant="primary" size="lg" className="w-full">
+                <Button variant="primary" size="md" className="w-full sm:w-auto">
                   Connect an agent →
                 </Button>
               </Link>
-              <a href="#workflow" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full">
+              <a href="#how-it-works" className="w-full sm:w-auto">
+                <Button variant="outline" size="md" className="w-full sm:w-auto">
                   See how it works
                 </Button>
               </a>
             </div>
           </div>
 
-          {/* Hero Visual: Realistic Interactive Product Preview */}
-          <div className="mt-12 md:mt-16 max-w-5xl mx-auto rounded-xl border border-stone-300/80 bg-white shadow-xl overflow-hidden text-left">
-            {/* Window Chrome Header */}
-            <div className="bg-stone-100 border-b border-stone-200 px-4 py-3 flex items-center justify-between">
+          {/* Hero Product Preview (Understandable in 5 seconds) */}
+          <div className="mt-10 sm:mt-12 max-w-5xl mx-auto rounded-xl border border-stone-300/80 bg-white shadow-lg overflow-hidden text-left">
+            {/* Window Topbar */}
+            <div className="bg-stone-100 border-b border-stone-200 px-4 py-2.5 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-stone-300 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-stone-300 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-stone-300 inline-block" />
-                <span className="ml-2 font-mono text-xs text-stone-600 font-medium">steward // run_prod_deploy_4802</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-300 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-300 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-stone-300 inline-block" />
+                <span className="ml-2 font-mono text-[11px] text-stone-500">steward // run_prod_deploy_4802</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Badge variant="running">RUNNING</Badge>
-                <span className="text-xs text-stone-500 font-mono">Agent: deployment-worker-01</span>
+                <span className="text-[11px] text-stone-500 font-mono hidden sm:inline">Agent: deployment-worker-01</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="SSE Stream Connected" />
               </div>
             </div>
 
-            {/* Product Interface Content Grid */}
+            {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-stone-200">
-              {/* Left Column: Timeline Overview */}
-              <div className="lg:col-span-7 p-5 sm:p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-600">
-                    Live Execution Telemetry
-                  </h3>
-                  <span className="text-xs font-mono text-stone-600">4 events • 1.2s total</span>
+              {/* Left Column: Timeline Stream */}
+              <div className="lg:col-span-7 p-4 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold uppercase tracking-wider text-stone-500 text-[11px]">
+                    Live Event Stream
+                  </span>
+                  <span className="font-mono text-[11px] text-stone-400">4 events • 1.2s</span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 text-xs">
                   {/* Event 1 */}
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-stone-50 border border-stone-200/80">
-                    <div className="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-mono text-xs font-bold shrink-0">
-                      01
-                    </div>
+                  <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 flex items-start gap-2.5">
+                    <span className="font-mono text-[11px] font-bold text-stone-400">01</span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-semibold text-stone-900">run.started</span>
-                        <span className="text-[10px] text-stone-600 font-mono">12:04:01</span>
+                      <div className="flex justify-between font-mono text-[11px]">
+                        <span className="font-semibold text-stone-900">run.started</span>
+                        <span className="text-stone-400">12:04:01</span>
                       </div>
-                      <p className="text-xs text-stone-600 truncate mt-0.5">
+                      <p className="text-stone-600 text-xs mt-0.5 truncate">
                         Task: &quot;Deploy auth microservice container to production cluster&quot;
                       </p>
                     </div>
                   </div>
 
                   {/* Event 2 */}
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-stone-50 border border-stone-200/80">
-                    <div className="w-6 h-6 rounded bg-purple-100 text-purple-700 flex items-center justify-center font-mono text-xs font-bold shrink-0">
-                      02
-                    </div>
+                  <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 flex items-start gap-2.5">
+                    <span className="font-mono text-[11px] font-bold text-purple-600">02</span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-semibold text-stone-900">model.completed</span>
-                        <span className="text-[10px] text-stone-600 font-mono">gemini-2.5-flash • $0.001</span>
+                      <div className="flex justify-between font-mono text-[11px]">
+                        <span className="font-semibold text-stone-900">model.completed</span>
+                        <span className="text-stone-400">gemini-2.5-flash • $0.001</span>
                       </div>
-                      <p className="text-xs text-stone-600 mt-0.5">
-                        Decision: Evaluated deployment safety check. Generated payload for tool invocation.
+                      <p className="text-stone-600 text-xs mt-0.5">
+                        Evaluated safety check. Generated payload for tool invocation.
                       </p>
                     </div>
                   </div>
 
-                  {/* Event 3: Pending Approval */}
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50/80 border border-amber-200">
-                    <div className="w-6 h-6 rounded bg-amber-200 text-amber-900 flex items-center justify-center font-mono text-xs font-bold shrink-0">
-                      !
-                    </div>
+                  {/* Event 3: Linked Pending Approval Event */}
+                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-300/80 flex items-start gap-2.5 ring-2 ring-amber-400/50">
+                    <span className="font-mono text-[11px] font-bold text-amber-700">03</span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-semibold text-amber-950">approval.requested</span>
+                      <div className="flex justify-between items-center font-mono text-[11px]">
+                        <span className="font-semibold text-amber-950">approval.requested</span>
                         <Badge variant="high">HIGH RISK</Badge>
                       </div>
-                      <p className="text-xs text-amber-900 font-medium mt-0.5">
-                        Tool: <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-950">deploy.prod</code>
+                      <p className="text-amber-900 text-xs mt-0.5 font-medium">
+                        Tool: <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-950 font-mono">aws.s3.delete_bucket</code>
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Approval Gate Action Widget */}
-              <div className="lg:col-span-5 p-5 sm:p-6 bg-stone-50/50 flex flex-col justify-between space-y-4">
+              {/* Right Column: Active Approval Panel */}
+              <div className="lg:col-span-5 p-4 sm:p-5 bg-stone-50/60 flex flex-col justify-between space-y-4">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-stone-600">
-                      Human Approval Gate
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-2 text-xs">
+                    <span className="font-semibold uppercase tracking-wider text-stone-500 text-[11px]">
+                      Pending Human Approval
                     </span>
                     <Badge variant="waiting">PENDING</Badge>
                   </div>
 
-                  <div className="bg-white p-3.5 rounded-lg border border-stone-200 space-y-2 font-mono text-xs">
-                    <div className="flex justify-between text-stone-600">
-                      <span>Tool:</span>
-                      <span className="font-semibold text-stone-900">deploy.prod</span>
+                  <div className="bg-white p-3 rounded-lg border border-stone-200 space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Tool:</span>
+                      <code className="font-mono font-bold text-stone-900">aws.s3.delete_bucket</code>
                     </div>
-                    <div className="flex justify-between text-stone-600">
-                      <span>Target:</span>
-                      <span className="text-stone-900">auth-service-v2.1.0</span>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Target:</span>
+                      <span className="font-mono text-stone-800">s3://prod-backups-2026</span>
                     </div>
-                    <div className="border-t border-stone-100 pt-2 text-stone-600">
-                      <div className="mb-1 text-[11px] text-stone-600">Redacted Arguments:</div>
-                      <pre className="bg-stone-950 text-stone-200 p-2 rounded text-[11px] overflow-x-auto">
-                        {`{
-  "service": "auth-api",
-  "apiKey": "[REDACTED]"
+                    <div className="border-t border-stone-100 pt-2">
+                      <span className="text-stone-500 text-[11px] block mb-1">Redacted Arguments:</span>
+                      <pre className="bg-stone-950 text-stone-200 p-2 rounded font-mono text-[10px] overflow-x-auto">
+{`{
+  "bucket": "prod-backups-2026",
+  "accessKey": "[REDACTED]"
 }`}
                       </pre>
                     </div>
                   </div>
                 </div>
 
-                {/* Interactive Demo Buttons */}
+                {/* Restrained Demo Decision Controls */}
                 <div className="pt-2 border-t border-stone-200">
                   {interactiveDecision === "pending" ? (
                     <div className="flex gap-2">
@@ -232,7 +317,7 @@ export default function LandingPage() {
                       </Button>
                     </div>
                   ) : interactiveDecision === "approved" ? (
-                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-lg text-xs font-medium flex items-center justify-between">
+                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-lg text-xs font-medium flex items-center justify-between">
                       <span>✓ Approved by Operator (Demo)</span>
                       <button
                         onClick={() => setInteractiveDecision("pending")}
@@ -242,7 +327,7 @@ export default function LandingPage() {
                       </button>
                     </div>
                   ) : (
-                    <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-lg text-xs font-medium flex items-center justify-between">
+                    <div className="bg-rose-50 border border-rose-200 text-rose-800 p-2.5 rounded-lg text-xs font-medium flex items-center justify-between">
                       <span>✕ Rejected by Operator (Demo)</span>
                       <button
                         onClick={() => setInteractiveDecision("pending")}
@@ -255,160 +340,187 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-stone-100/80 px-4 py-2 border-t border-stone-200 text-[11px] text-stone-600 flex items-center justify-between">
-              <span>Illustrative product preview. Real agent execution runs locally or in your cloud environment.</span>
-              <span className="font-mono">Steward V1 Runtime</span>
+            <div className="bg-stone-100/90 px-4 py-2 border-t border-stone-200 text-[11px] text-stone-500 flex items-center justify-between">
+              <span>Illustrative product preview. Agent runs execute in your local or cloud environment.</span>
+              <span className="font-mono text-stone-400">Steward Telemetry</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Product Workflow Section (Requirement 5) */}
-      <section id="workflow" className="py-20 md:py-24 bg-white border-y border-stone-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="font-serif text-3xl sm:text-4xl text-stone-900">
+      {/* 3. Connected Operational Loop Section (Requirement 7) */}
+      <section id="how-it-works" className="py-16 md:py-20 bg-white border-y border-stone-200/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
               How Steward works
             </h2>
-            <p className="text-stone-600 text-base">
-              Four deliberate steps to transform autonomous agent execution from an unmonitored black box into a supervised workflow.
+            <p className="text-stone-600 text-xs sm:text-sm">
+              A connected four-step loop for supervising autonomous execution.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Step 1: Connect */}
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200/80 space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-sm font-bold">
-                1
-              </div>
-              <h3 className="text-lg font-semibold text-stone-900">1. Connect</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Add the lightweight <code className="text-xs bg-stone-200/80 px-1 py-0.5 rounded text-stone-800">@steward/sdk</code> package to any existing Node.js or TypeScript agent.
-              </p>
-            </div>
+          {/* Connected Horizontal Progression (Desktop) / Vertical (Mobile) */}
+          <div className="relative">
+            {/* Desktop Connecting Bar */}
+            <div className="hidden lg:block absolute top-6 left-12 right-12 h-0.5 bg-stone-200 -z-0" />
 
-            {/* Step 2: Observe */}
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200/80 space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-mono text-sm font-bold">
-                2
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              {/* Step 1: Connect */}
+              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    1
+                  </div>
+                  <h3 className="text-sm font-bold text-stone-900">Connect</h3>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Add the lightweight Node.js SDK package to an existing agent codebase.
+                </p>
+                <div className="bg-stone-950 p-2.5 rounded text-[11px] font-mono text-stone-300">
+                  <code className="text-blue-400">new Steward({`{ apiKey }`})</code>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-stone-900">2. Observe</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Stream model calls, tool executions, failures, duration, and token cost in a real-time chronological timeline.
-              </p>
-            </div>
 
-            {/* Step 3: Approve */}
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200/80 space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-mono text-sm font-bold">
-                3
+              {/* Step 2: Observe */}
+              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    2
+                  </div>
+                  <h3 className="text-sm font-bold text-stone-900">Observe</h3>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Stream model calls, tool executions, latency, token costs, and failures.
+                </p>
+                <div className="bg-stone-950 p-2.5 rounded text-[11px] font-mono text-emerald-400 truncate">
+                  tool.succeeded • db.query
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-stone-900">3. Approve</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Set human approval gates on high-risk tools. Execution pauses safely until a human operator approves or rejects.
-              </p>
-            </div>
 
-            {/* Step 4: Control */}
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200/80 space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-sm font-bold">
-                4
+              {/* Step 3: Approve */}
+              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    3
+                  </div>
+                  <h3 className="text-sm font-bold text-stone-900">Approve</h3>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Hold sensitive actions in a polling loop until a person approves or rejects.
+                </p>
+                <div className="bg-stone-950 p-2.5 rounded text-[11px] font-mono text-amber-300 truncate">
+                  deploy.prod • HIGH RISK
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-stone-900">4. Control</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Cooperatively pause, resume, or cancel connected agent runs directly from the Steward dashboard shell.
-              </p>
+
+              {/* Step 4: Control */}
+              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    4
+                  </div>
+                  <h3 className="text-sm font-bold text-stone-900">Control</h3>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Cooperatively pause, resume, or cancel connected agent execution safely.
+                </p>
+                <div className="flex gap-1.5 font-mono text-[10px]">
+                  <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded font-semibold">Pause</span>
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-semibold">Resume</span>
+                  <span className="px-2 py-1 bg-rose-100 text-rose-800 rounded font-semibold">Cancel</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. Product Feature Deep-Dive (Requirement 6) */}
-      <section id="product-preview" className="py-20 md:py-24 bg-[#FAF8F5]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="font-serif text-3xl sm:text-4xl text-stone-900">
-              Built for engineering precision
+      {/* 4. Product Stories Section (Requirement 8) */}
+      <section id="features" className="py-16 md:py-20 bg-[#FAF8F5]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
+              Everything you need to supervise a run
             </h2>
-            <p className="text-stone-600 text-base">
-              Every detail is designed for operational visibility, auditability, and deterministic human control.
+            <p className="text-stone-600 text-xs sm:text-sm">
+              Follow every action, review sensitive requests, and step in without losing the execution history.
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-stone-300/80 p-6 md:p-8 space-y-6 shadow-sm">
-            {/* Tab Navigation */}
-            <div className="flex border-b border-stone-200 gap-6 text-sm font-medium">
+          <div className="bg-white rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-sm">
+            {/* Story Navigation Tabs */}
+            <div className="flex border-b border-stone-200 gap-4 sm:gap-8 text-xs sm:text-sm font-medium overflow-x-auto">
               <button
-                onClick={() => setActiveTab("timeline")}
-                className={`pb-3 border-b-2 transition-colors ${activeTab === "timeline"
-                  ? "border-blue-600 text-blue-600 font-semibold"
-                  : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                onClick={() => setActiveStory("timeline")}
+                className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
+                  activeStory === "timeline"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                }`}
               >
-                Live Execution Timeline
+                1. Understand every run
               </button>
               <button
-                onClick={() => setActiveTab("approval")}
-                className={`pb-3 border-b-2 transition-colors ${activeTab === "approval"
-                  ? "border-blue-600 text-blue-600 font-semibold"
-                  : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                onClick={() => setActiveStory("approval")}
+                className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
+                  activeStory === "approval"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                }`}
               >
-                Human Approval Gates
+                2. Hold sensitive actions
               </button>
               <button
-                onClick={() => setActiveTab("sdk")}
-                className={`pb-3 border-b-2 transition-colors ${activeTab === "sdk"
-                  ? "border-blue-600 text-blue-600 font-semibold"
-                  : "border-transparent text-stone-500 hover:text-stone-900"
-                  }`}
+                onClick={() => setActiveStory("control")}
+                className={`pb-2.5 border-b-2 transition-colors shrink-0 ${
+                  activeStory === "control"
+                    ? "border-blue-600 text-blue-600 font-semibold"
+                    : "border-transparent text-stone-500 hover:text-stone-900"
+                }`}
               >
-                Cooperative Controls & SDK
+                3. Intervene safely
               </button>
             </div>
 
-            {/* Tab Content 1: Timeline */}
-            {activeTab === "timeline" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-stone-900">
-                    Complete chronological history of model and tool actions
+            {/* Story 1: Understand Every Run */}
+            {activeStory === "timeline" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-stone-900">
+                    Observe model calls, tool actions, duration, and cost
                   </h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    Track sequence-ordered events emitted by your agent SDK. Observe input token counts, output costs, tool execution latencies, and output payloads without exposing raw secrets.
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                    Track sequence-ordered events emitted by your agent SDK in a sub-second timeline. Monitor token counts, API cost, tool latency, and error tracebacks.
                   </p>
-                  <ul className="space-y-2 text-sm text-stone-700">
+                  <ul className="space-y-1.5 text-xs text-stone-700">
                     <li className="flex items-center gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Automatic recursive redaction of API keys & credentials</span>
+                      <span>Real-time timeline streaming via Server-Sent Events (SSE)</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Server-Sent Events (SSE) for sub-second timeline streaming</span>
+                      <span>Automatic recursive redaction of secrets and credentials</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-emerald-600 font-bold">✓</span>
-                      <span>Immutable audit log storage per project</span>
+                      <span>Immutable audit log per project</span>
                     </li>
                   </ul>
                 </div>
-                <div className="bg-stone-950 text-stone-200 p-4 sm:p-6 rounded-lg font-mono text-xs space-y-3 overflow-x-auto shadow-inner">
-                  <div className="text-stone-500">// Steward Event Envelope Format</div>
-                  <pre className="text-stone-300">
-                    {`{
+                <div className="bg-stone-950 text-stone-200 p-4 rounded-lg font-mono text-xs space-y-2 overflow-x-auto shadow-inner">
+                  <div className="text-stone-500 text-[11px] font-sans">{`// Steward Event Envelope`}</div>
+                  <pre className="text-stone-300 text-[11px]">
+{`{
   "specVersion": "1.0",
   "eventId": "evt_98f421a",
   "eventType": "tool.succeeded",
   "occurredAt": "2026-07-27T00:12:04.102Z",
-  "agentKey": "research-agent-01",
   "sequence": 4,
   "payload": {
     "toolName": "db.query",
     "durationMs": 142,
-    "arguments": {
-      "table": "users",
-      "authToken": "[REDACTED]"
-    }
+    "arguments": { "authToken": "[REDACTED]" }
   }
 }`}
                   </pre>
@@ -416,53 +528,51 @@ export default function LandingPage() {
               </div>
             )}
 
-            {/* Tab Content 2: Approval Gates */}
-            {activeTab === "approval" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-stone-900">
-                    Hold sensitive operations before execution occurs
+            {/* Story 2: Hold Sensitive Actions */}
+            {activeStory === "approval" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-stone-900">
+                    Hold execution until an operator reviews the request
                   </h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    When an agent calls a guarded tool (e.g. database mutations, production deployments, payment transfers), execution pauses in a polling loop until a human operator responds.
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                    When an agent calls a guarded tool, execution pauses safely in a polling loop until an operator approves or rejects the action with a documented reason.
                   </p>
-                  <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                    <span className="font-semibold">Deterministic Policy:</span>
-                    <p>Guarded tool callbacks never run unless explicit HTTP approval is recorded with user identity and timestamp.</p>
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
+                    Policy: Guarded callbacks never execute without an explicit HTTP approval record.
                   </div>
                 </div>
-                <div className="border border-stone-200 rounded-lg p-5 bg-stone-50 space-y-4">
+                <div className="border border-stone-200 rounded-lg p-4 bg-stone-50 space-y-3 text-xs">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold uppercase tracking-wider text-stone-700">Approval Request #402</span>
+                    <span className="font-mono font-bold text-stone-800">aws.s3.delete_bucket</span>
                     <Badge variant="high">HIGH RISK</Badge>
                   </div>
-                  <div className="space-y-2 text-xs font-mono">
-                    <div className="flex justify-between"><span className="text-stone-500">Agent:</span> <span className="text-stone-900">deployment-agent</span></div>
-                    <div className="flex justify-between"><span className="text-stone-500">Tool:</span> <span className="text-stone-900 font-bold">aws.s3.delete_bucket</span></div>
-                    <div className="flex justify-between"><span className="text-stone-500">Reason:</span> <span className="text-stone-900">Clean old test environment</span></div>
+                  <div className="space-y-1 font-mono text-[11px]">
+                    <div><span className="text-stone-500">Agent:</span> <span className="text-stone-900">cleanup-worker</span></div>
+                    <div><span className="text-stone-500">Reason:</span> <span className="text-stone-900">Clean staging bucket</span></div>
                   </div>
                   <div className="pt-2 flex gap-2">
-                    <Button variant="destructive" size="sm" className="w-full">Reject Request</Button>
-                    <Button variant="success" size="sm" className="w-full">Approve Request</Button>
+                    <Button variant="destructive" size="sm" className="w-full">Reject</Button>
+                    <Button variant="success" size="sm" className="w-full">Approve</Button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Tab Content 3: SDK & Control */}
-            {activeTab === "sdk" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-stone-900">
+            {/* Story 3: Intervene Safely */}
+            {activeStory === "control" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-stone-900">
                     Cooperative pause, resume, and cancel control signals
                   </h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    Operators can issue control commands directly from the dashboard. Connected agents poll for pending commands at execution checkpoints and gracefully yield or abort.
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                    Issue control commands from the dashboard. Connected agents poll for pending commands at checkpoints and yield or abort cleanly.
                   </p>
-                  <ul className="space-y-2 text-sm text-stone-700">
+                  <ul className="space-y-1.5 text-xs text-stone-700">
                     <li className="flex items-center gap-2">
                       <span className="text-blue-600 font-bold">▶</span>
-                      <span><strong>PAUSE</strong>: Temporarily holds agent at next checkpoint</span>
+                      <span><strong>PAUSE</strong>: Holds execution at next checkpoint</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-emerald-600 font-bold">▶</span>
@@ -470,20 +580,19 @@ export default function LandingPage() {
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-rose-600 font-bold">■</span>
-                      <span><strong>CANCEL</strong>: Safely aborts run with typed StewardRunCancelledError</span>
+                      <span><strong>CANCEL</strong>: Aborts run with typed StewardRunCancelledError</span>
                     </li>
                   </ul>
                 </div>
-                <div className="bg-stone-900 text-stone-100 p-5 rounded-lg font-mono text-xs space-y-2">
-                  <div className="text-stone-400">// Agent Cooperative Control Listener</div>
-                  <pre className="text-blue-300">
-                    {`run.startCommandListener({
+                <div className="bg-stone-900 text-stone-100 p-4 rounded-lg font-mono text-xs space-y-2">
+                  <div className="text-stone-400 text-[11px] font-sans">{`// Command Listener`}</div>
+                  <pre className="text-blue-300 text-[11px]">
+{`run.startCommandListener({
   onPause: async (cmd) => console.log("Paused:", cmd.reason),
   onResume: async (cmd) => console.log("Resumed:", cmd.reason),
   onCancel: async (cmd) => console.log("Cancelled:", cmd.reason),
 });
 
-// Checkpoint holds execution if PAUSED
 await run.checkpoint();`}
                   </pre>
                 </div>
@@ -493,148 +602,161 @@ await run.checkpoint();`}
         </div>
       </section>
 
-      {/* 5. Trust & Security Section (Requirement 7) */}
-      <section id="security" className="py-20 md:py-24 bg-white border-t border-stone-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="font-serif text-3xl sm:text-4xl text-stone-900">
-              Security & Data Boundaries
+      {/* 5. Clear Boundaries by Design Section (Requirement 9) */}
+      <section id="security" className="py-16 md:py-20 bg-white border-t border-stone-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
+              Clear boundaries by design
             </h2>
-            <p className="text-stone-600 text-base">
-              Accurate, transparent boundaries for engineering leadership.
+            <p className="text-stone-600 text-xs sm:text-sm">
+              Steward provides supervision telemetry without taking over your infrastructure.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-3">
-              <div className="w-8 h-8 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
-                🔑
-              </div>
-              <h3 className="text-base font-semibold text-stone-900">SHA-256 API Key Hashing</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Complete secret keys are displayed <strong>EXACTLY ONCE</strong> upon generation. Only SHA-256 hashes are stored in the database.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="font-semibold text-sm text-stone-900">1. Keys identify projects</div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Complete secret keys are shown once. Only SHA-256 hashes are stored.
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-3">
-              <div className="w-8 h-8 rounded bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
-                🛡️
-              </div>
-              <h3 className="text-base font-semibold text-stone-900">Recursive Payload Redaction</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Sensitive keys (passwords, tokens, cookies, secret keys) are recursively scanned and masked with <code className="bg-stone-200 px-1 py-0.5 rounded text-xs">[REDACTED]</code> prior to persistence.
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="font-semibold text-sm text-stone-900">2. Sensitive fields redacted</div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Passwords, tokens, and secret parameters are masked with <code className="bg-stone-200 px-1 rounded text-[11px]">[REDACTED]</code>.
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-3">
-              <div className="w-8 h-8 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
-                📋
-              </div>
-              <h3 className="text-base font-semibold text-stone-900">Audited Human Operations</h3>
-              <p className="text-sm text-stone-600 leading-relaxed">
-                Every approval decision, project creation, API key revocation, and run control action is stored in an append-only audit log.
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="font-semibold text-sm text-stone-900">3. Decisions recorded</div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Human approvals, project modifications, and key revocations are stored in an append-only log.
               </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+              <div className="font-semibold text-sm text-stone-900">4. Agents remain local</div>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Steward does not host agent code or execute tools. Control signals are cooperative.
+              </p>
+            </div>
+          </div>
+
+          {/* Simple Boundary Visual Diagram */}
+          <div className="p-5 rounded-xl bg-stone-900 text-stone-200 font-mono text-xs overflow-x-auto max-w-3xl mx-auto shadow-sm text-center">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap text-[11px]">
+              <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100">
+                Connected Agent
+              </span>
+              <span className="text-stone-500">→</span>
+              <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-amber-300">
+                Redacted Event
+              </span>
+              <span className="text-stone-500">→</span>
+              <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-blue-300">
+                Steward Timeline
+              </span>
+              <span className="text-stone-500">→</span>
+              <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-emerald-300">
+                Human Decision
+              </span>
+              <span className="text-stone-500">→</span>
+              <span className="px-2.5 py-1 rounded bg-stone-800 border border-stone-700 text-stone-100">
+                Connected Agent
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. SDK Integration Section (Requirement 8) */}
-      <section id="integration" className="py-20 md:py-24 bg-[#FAF8F5]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="font-serif text-3xl sm:text-4xl text-stone-900">
-              Simple 5-minute integration
+      {/* 6. Integration Section (Requirement 10) */}
+      <section id="integration" className="py-16 md:py-20 bg-[#FAF8F5]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
+              Connect your first agent in minutes
             </h2>
-            <p className="text-stone-600 text-base">
-              Add Steward telemetry and approval gates to any existing Node.js or TypeScript agent with minimal boilerplate.
+            <p className="text-stone-600 text-xs sm:text-sm">
+              Add telemetry and approval gates using the official <code className="bg-stone-200 px-1 py-0.5 rounded text-xs font-mono text-stone-800">@steward/sdk</code> package.
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto rounded-xl bg-stone-950 text-stone-200 p-6 md:p-8 font-mono text-xs sm:text-sm space-y-4 shadow-xl overflow-x-auto border border-stone-800">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3 text-stone-400">
+          <div className="max-w-2xl mx-auto rounded-xl bg-stone-950 text-stone-200 p-5 sm:p-6 font-mono text-xs space-y-3 shadow-md border border-stone-800">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-2.5 text-stone-400">
               <span>agent.ts</span>
-              <span>npm install @steward/sdk</span>
+              <button
+                onClick={handleCopyCode}
+                className="text-xs font-sans text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+              >
+                {copiedCode ? "✓ Copied!" : "Copy Code"}
+              </button>
             </div>
-            <pre className="text-stone-300 leading-relaxed">
-              {`import { Steward } from "@steward/sdk";
+            <pre className="text-stone-300 leading-relaxed overflow-x-auto text-[11px]">
+{`import { Steward } from "@steward/sdk";
 
-// Initialize Steward SDK with Project API Key
 const steward = new Steward({
   apiKey: process.env.STEWARD_API_KEY!,
-  baseUrl: "https://your-steward-instance.com",
   agentName: "deployment-agent",
 });
 
 const run = steward.startRun();
-await run.started({ task: "Deploy production release" });
-
-const agent = run.agent({ name: "guarded-worker" });
-
-// Guarded tool call held for human approval
-const result = await agent.guardedToolCall(
-  {
-    toolName: "deploy.prod",
-    arguments: { service: "auth-api", tag: "v2.1.0" },
-    reason: "Deploy container tag to production cluster",
-    riskLevel: "high",
-  },
-  async () => {
-    // Only executes AFTER human approval!
-    return await executeDeploy();
-  }
-);
-
-await run.completed({ status: "success" });`}
+await run.started({ task: "Deploy production container" });`}
             </pre>
           </div>
 
-          <div className="text-center">
+          <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href={isAuthenticated ? "/runs" : "/register"}>
               <Button variant="primary" size="md">
-                Get started with @steward/sdk →
+                Connect an agent →
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 7. Final CTA & Footer (Requirement 9) */}
-      <section className="py-20 bg-stone-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white">
-            Put a human checkpoint between intention and action.
+      {/* 7. Final CTA & Footer (Requirement 11 & 13) */}
+      <section className="py-16 bg-stone-900 text-white">
+        <div className="max-w-3xl mx-auto px-4 text-center space-y-5">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white">
+            Put a human checkpoint before the next sensitive action.
           </h2>
-          <p className="text-stone-300 text-base max-w-xl mx-auto">
+          <p className="text-stone-300 text-xs sm:text-sm max-w-lg mx-auto">
             Give your autonomous agent pipelines a dedicated supervision workspace with live timeline visibility and human control gates.
           </p>
-          <div className="pt-2 flex flex-col sm:flex-row justify-center gap-4">
+          <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
             <Link href={isAuthenticated ? "/runs" : "/register"}>
-              <Button variant="primary" size="lg" className="w-full sm:w-auto bg-white text-stone-900 hover:bg-stone-100">
-                Create a project →
+              <Button variant="primary" size="md" className="w-full sm:w-auto bg-white text-stone-900 hover:bg-stone-100">
+                Connect an agent →
               </Button>
             </Link>
+            <a href="#integration">
+              <Button variant="outline" size="md" className="w-full sm:w-auto text-white border-stone-700 hover:bg-stone-800">
+                Read the docs
+              </Button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-stone-950 text-stone-400 text-xs border-t border-stone-800 py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
+      <footer className="bg-stone-950 text-stone-400 text-xs border-t border-stone-800 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
             <StewardLogo size="sm" variant="light" />
-            <span>© 2026 Steward V1. All rights reserved.</span>
+            <span>© 2026 Steward. All rights reserved.</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <a href="#workflow" className="hover:text-white transition-colors">
+          <div className="flex items-center gap-6 font-medium text-stone-400">
+            <a href="#features" className="hover:text-white transition-colors">
               Product
             </a>
             <a href="#security" className="hover:text-white transition-colors">
               Security
             </a>
             <a href="#integration" className="hover:text-white transition-colors">
-              Documentation
+              Docs
             </a>
             <a
               href="https://github.com/o1-spec/Steward"
