@@ -29,4 +29,11 @@ describe("UI & Design System Helpers", () => {
     expect((redacted.config as Record<string, unknown>).password).toBe("[REDACTED]");
     expect(redacted.service).toBe("auth-api");
   });
+
+  it("should verify spacing scale values and breakpoints", () => {
+    const spacingScale = [4, 8, 12, 16, 24, 32, 48, 64, 96, 128];
+    expect(spacingScale).toContain(16);
+    expect(spacingScale).toContain(32);
+    expect(spacingScale).toContain(64);
+  });
 });

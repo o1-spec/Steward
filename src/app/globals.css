@@ -17,6 +17,16 @@
   --color-ink-black: #0f172a;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* Custom Grid Background for Public Landing Page */
 .bg-grid-pattern {
   background-size: 32px 32px;
