@@ -54,6 +54,9 @@ await run.started({ task: "Deploy production container" });`;
             <a href="#features" className="hover:text-stone-900 transition-colors">
               Product
             </a>
+            <a href="#examples" className="hover:text-stone-900 transition-colors">
+              Use Cases
+            </a>
             <a href="#security" className="hover:text-stone-900 transition-colors">
               Security
             </a>
@@ -117,6 +120,13 @@ await run.started({ task: "Deploy production container" });`;
               Product
             </a>
             <a
+              href="#examples"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-stone-700 hover:text-stone-900"
+            >
+              Use Cases
+            </a>
+            <a
               href="#security"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-stone-700 hover:text-stone-900"
@@ -158,7 +168,6 @@ await run.started({ task: "Deploy production container" });`;
 
       {/* 2. Hero Section */}
       <section className="relative pt-10 pb-12 sm:pt-14 sm:pb-16 md:pt-16 md:pb-20 overflow-hidden">
-        {/* Subtle Faded Grid Background */}
         <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none mask-radial-gradient" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
@@ -191,9 +200,8 @@ await run.started({ task: "Deploy production container" });`;
             </div>
           </div>
 
-          {/* Hero Product Preview (Understandable in 5 seconds) */}
+          {/* Hero Product Preview */}
           <div className="mt-10 sm:mt-12 max-w-5xl mx-auto rounded-xl border border-stone-300/80 bg-white shadow-lg overflow-hidden text-left">
-            {/* Window Topbar */}
             <div className="bg-stone-100 border-b border-stone-200 px-4 py-2.5 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-stone-300 inline-block" />
@@ -208,9 +216,7 @@ await run.started({ task: "Deploy production container" });`;
               </div>
             </div>
 
-            {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-stone-200">
-              {/* Left Column: Timeline Stream */}
               <div className="lg:col-span-7 p-4 sm:p-5 space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold uppercase tracking-wider text-stone-500 text-[11px]">
@@ -220,7 +226,6 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  {/* Event 1 */}
                   <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 flex items-start gap-2.5">
                     <span className="font-mono text-[11px] font-bold text-stone-400">01</span>
                     <div className="flex-1 min-w-0">
@@ -234,7 +239,6 @@ await run.started({ task: "Deploy production container" });`;
                     </div>
                   </div>
 
-                  {/* Event 2 */}
                   <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 flex items-start gap-2.5">
                     <span className="font-mono text-[11px] font-bold text-purple-600">02</span>
                     <div className="flex-1 min-w-0">
@@ -248,7 +252,6 @@ await run.started({ task: "Deploy production container" });`;
                     </div>
                   </div>
 
-                  {/* Event 3: Linked Pending Approval Event */}
                   <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-300/80 flex items-start gap-2.5 ring-2 ring-amber-400/50">
                     <span className="font-mono text-[11px] font-bold text-amber-700">03</span>
                     <div className="flex-1 min-w-0">
@@ -264,7 +267,6 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              {/* Right Column: Active Approval Panel */}
               <div className="lg:col-span-5 p-4 sm:p-5 bg-stone-50/60 flex flex-col justify-between space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-stone-200 pb-2 text-xs">
@@ -295,7 +297,6 @@ await run.started({ task: "Deploy production container" });`;
                   </div>
                 </div>
 
-                {/* Restrained Demo Decision Controls */}
                 <div className="pt-2 border-t border-stone-200">
                   {interactiveDecision === "pending" ? (
                     <div className="flex gap-2">
@@ -348,8 +349,97 @@ await run.started({ task: "Deploy production container" });`;
         </div>
       </section>
 
-      {/* 3. Connected Operational Loop Section (Requirement 7) */}
-      <section id="how-it-works" className="py-16 md:py-20 bg-white border-y border-stone-200/80">
+      {/* NEW SECTION 1: The problem Steward solves (Placed immediately after hero preview) */}
+      <section className="py-16 md:py-20 bg-white border-y border-stone-200/80">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-stone-900">
+              Agents can act faster than humans can review.
+            </h2>
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
+              Once an agent can call APIs, modify records or trigger external systems, ordinary logs are no longer enough. Teams need to see what is happening, stop sensitive actions for review and preserve a reliable record of every decision.
+            </p>
+          </div>
+
+          {/* 3 Concise Problem Points */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
+              <div className="w-7 h-7 rounded-md bg-stone-200 text-stone-800 flex items-center justify-center font-bold text-xs">
+                !
+              </div>
+              <h3 className="text-sm font-semibold text-stone-900">Actions happen out of sight</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Model calls, tool selections and failures are scattered across unorganized application logs.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
+              <div className="w-7 h-7 rounded-md bg-amber-100 text-amber-900 flex items-center justify-center font-bold text-xs">
+                ⚠️
+              </div>
+              <h3 className="text-sm font-semibold text-stone-900">Sensitive tools execute immediately</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Deployments, external messages and database mutations happen automatically without prior review.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2">
+              <div className="w-7 h-7 rounded-md bg-rose-100 text-rose-900 flex items-center justify-center font-bold text-xs">
+                🛑
+              </div>
+              <h3 className="text-sm font-semibold text-stone-900">Intervention comes too late</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                By the time someone notices an unexpected tool output, the destructive operation is already complete.
+              </p>
+            </div>
+          </div>
+
+          {/* Connected Visual: Unsupervised vs Steward Checkpoint */}
+          <div className="bg-stone-950 text-stone-200 p-5 rounded-xl border border-stone-800 space-y-4 max-w-3xl mx-auto font-mono text-xs shadow-md">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-[11px] text-stone-400">
+              <span>UNSUPERVISED VS STEWARD CONTROL LAYER</span>
+              <span className="text-emerald-400">Deterministic Safety Gate</span>
+            </div>
+
+            {/* Unsupervised Row */}
+            <div className="p-3 rounded bg-stone-900 border border-stone-800 opacity-60">
+              <div className="text-[10px] text-rose-400 uppercase tracking-wider mb-1 font-semibold">Unsupervised Execution</div>
+              <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <span className="text-stone-300">Agent Intention</span>
+                <span className="text-stone-500">→</span>
+                <span className="text-rose-400">Direct Tool Call (No Review)</span>
+                <span className="text-stone-500">→</span>
+                <span className="text-rose-400 font-bold">Unchecked Mutation Complete</span>
+              </div>
+            </div>
+
+            {/* Steward Supervised Row */}
+            <div className="p-3 rounded bg-stone-900 border border-blue-500/40 ring-1 ring-blue-500/20">
+              <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1 font-semibold">Steward Supervised Execution</div>
+              <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                <span className="text-stone-300">Agent Intention</span>
+                <span className="text-stone-500">→</span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                  Steward Approval Gate (Held)
+                </span>
+                <span className="text-stone-500">→</span>
+                <span className="text-emerald-400">Human Operator Decision</span>
+                <span className="text-stone-500">→</span>
+                <span className="text-stone-200 font-medium">Safe Tool Execution</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center pt-2">
+            <p className="text-xs sm:text-sm font-medium text-stone-900 italic">
+              Steward places a human control layer between an agent’s intention and its sensitive actions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Connected Operational Loop Section */}
+      <section id="how-it-works" className="py-16 md:py-20 bg-[#FAF8F5]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
@@ -360,14 +450,11 @@ await run.started({ task: "Deploy production container" });`;
             </p>
           </div>
 
-          {/* Connected Horizontal Progression (Desktop) / Vertical (Mobile) */}
           <div className="relative">
-            {/* Desktop Connecting Bar */}
             <div className="hidden lg:block absolute top-6 left-12 right-12 h-0.5 bg-stone-200 -z-0" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-              {/* Step 1: Connect */}
-              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+              <div className="space-y-3 bg-white p-5 rounded-xl border border-stone-200/80 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-xs font-bold">
                     1
@@ -382,8 +469,7 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              {/* Step 2: Observe */}
-              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+              <div className="space-y-3 bg-white p-5 rounded-xl border border-stone-200/80 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-mono text-xs font-bold">
                     2
@@ -398,8 +484,7 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              {/* Step 3: Approve */}
-              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+              <div className="space-y-3 bg-white p-5 rounded-xl border border-stone-200/80 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center font-mono text-xs font-bold">
                     3
@@ -414,8 +499,7 @@ await run.started({ task: "Deploy production container" });`;
                 </div>
               </div>
 
-              {/* Step 4: Control */}
-              <div className="space-y-3 bg-[#FAF8F5] p-5 rounded-xl border border-stone-200/80">
+              <div className="space-y-3 bg-white p-5 rounded-xl border border-stone-200/80 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center font-mono text-xs font-bold">
                     4
@@ -436,8 +520,8 @@ await run.started({ task: "Deploy production container" });`;
         </div>
       </section>
 
-      {/* 4. Product Stories Section (Requirement 8) */}
-      <section id="features" className="py-16 md:py-20 bg-[#FAF8F5]">
+      {/* 4. Product Stories Section */}
+      <section id="features" className="py-16 md:py-20 bg-white border-t border-stone-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
@@ -448,8 +532,7 @@ await run.started({ task: "Deploy production container" });`;
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-sm">
-            {/* Story Navigation Tabs */}
+          <div className="bg-[#FAF8F5] rounded-xl border border-stone-300/80 p-5 md:p-8 space-y-6 shadow-xs">
             <div className="flex border-b border-stone-200 gap-4 sm:gap-8 text-xs sm:text-sm font-medium overflow-x-auto">
               <button
                 onClick={() => setActiveStory("timeline")}
@@ -483,7 +566,6 @@ await run.started({ task: "Deploy production container" });`;
               </button>
             </div>
 
-            {/* Story 1: Understand Every Run */}
             {activeStory === "timeline" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
                 <div className="space-y-3">
@@ -528,7 +610,6 @@ await run.started({ task: "Deploy production container" });`;
               </div>
             )}
 
-            {/* Story 2: Hold Sensitive Actions */}
             {activeStory === "approval" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
                 <div className="space-y-3">
@@ -542,7 +623,7 @@ await run.started({ task: "Deploy production container" });`;
                     Policy: Guarded callbacks never execute without an explicit HTTP approval record.
                   </div>
                 </div>
-                <div className="border border-stone-200 rounded-lg p-4 bg-stone-50 space-y-3 text-xs">
+                <div className="border border-stone-200 rounded-lg p-4 bg-white space-y-3 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-stone-800">aws.s3.delete_bucket</span>
                     <Badge variant="high">HIGH RISK</Badge>
@@ -559,7 +640,6 @@ await run.started({ task: "Deploy production container" });`;
               </div>
             )}
 
-            {/* Story 3: Intervene Safely */}
             {activeStory === "control" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-2">
                 <div className="space-y-3">
@@ -602,7 +682,156 @@ await run.checkpoint();`}
         </div>
       </section>
 
-      {/* 5. Clear Boundaries by Design Section (Requirement 9) */}
+      {/* NEW SECTION 2: Real-world supervision examples (Placed after product stories & before security) */}
+      <section id="examples" className="py-16 md:py-20 bg-[#FAF8F5] border-t border-stone-200/80">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
+              One control layer for different kinds of agents
+            </h2>
+            <p className="text-stone-600 text-xs sm:text-sm">
+              Realistic supervision flows across engineering, support, and research workloads.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Example 1: Deployment Agent */}
+            <div className="bg-white rounded-xl border border-stone-300/80 p-5 sm:p-6 space-y-4 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-stone-900 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    A
+                  </div>
+                  <h3 className="text-base font-semibold text-stone-900">Deployment Agent</h3>
+                </div>
+                <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
+                  <span>Agent starts</span>
+                  <span>→</span>
+                  <span>Work observed</span>
+                  <span>→</span>
+                  <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Action held</span>
+                  <span>→</span>
+                  <span className="text-emerald-700 font-bold">Human decides</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">1. Goal</span>
+                  <p className="text-stone-700">Prepares and deploys container update to production Kubernetes cluster.</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">2. Steward Records</span>
+                  <p className="text-stone-700 font-mono">build.status, test.summary, container.tag: &quot;v2.1.0&quot;</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">3. Held Action</span>
+                  <code className="bg-amber-100 text-amber-950 font-mono px-1.5 py-0.5 rounded font-bold inline-block">
+                    deploy.production
+                  </code>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">4. Human Decision</span>
+                  <p className="text-stone-700">Engineer inspects parameter diff & clicks <strong className="text-emerald-700">Approve</strong> to release container.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Example 2: Customer-Support Agent */}
+            <div className="bg-white rounded-xl border border-stone-300/80 p-5 sm:p-6 space-y-4 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-blue-600 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    B
+                  </div>
+                  <h3 className="text-base font-semibold text-stone-900">Customer-Support Agent</h3>
+                </div>
+                <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
+                  <span>Agent starts</span>
+                  <span>→</span>
+                  <span>Work observed</span>
+                  <span>→</span>
+                  <span className="text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded">Action held</span>
+                  <span>→</span>
+                  <span className="text-emerald-700 font-bold">Human decides</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">1. Goal</span>
+                  <p className="text-stone-700">Drafts customer response email and calculates refund for disputed billing item.</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">2. Steward Records</span>
+                  <p className="text-stone-700 font-mono">model.reasoning, policy.lookup, refund.amount: $149.00</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">3. Held Action</span>
+                  <code className="bg-amber-100 text-amber-950 font-mono px-1.5 py-0.5 rounded font-bold inline-block">
+                    billing.issue_refund
+                  </code>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">4. Human Decision</span>
+                  <p className="text-stone-700">Support lead verifies account history & approves refund dispatch.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Example 3: Research Agent */}
+            <div className="bg-white rounded-xl border border-stone-300/80 p-5 sm:p-6 space-y-4 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-emerald-700 text-white flex items-center justify-center font-mono text-xs font-bold">
+                    C
+                  </div>
+                  <h3 className="text-base font-semibold text-stone-900">Research Agent</h3>
+                </div>
+                <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 overflow-x-auto">
+                  <span>Agent starts</span>
+                  <span>→</span>
+                  <span>Work observed</span>
+                  <span>→</span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">Telemetry recorded</span>
+                  <span>→</span>
+                  <span className="text-stone-700 font-bold">Run completed</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">1. Goal</span>
+                  <p className="text-stone-700">Searches literature, queries models, and synthesizes competitive benchmark report.</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">2. Steward Records</span>
+                  <p className="text-stone-700 font-mono">search.queries, token.costs: $0.04, latency: 12.4s</p>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">3. Held Action</span>
+                  <span className="text-stone-500 italic">None (Autonomous read-only operation)</span>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="font-semibold uppercase text-[10px] text-stone-500 tracking-wider block">4. Human Decision</span>
+                  <p className="text-stone-700">Operator inspects timeline cost summary & views generated report payload.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Clear Boundaries by Design Section */}
       <section id="security" className="py-16 md:py-20 bg-white border-t border-stone-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
           <div className="text-center max-w-xl mx-auto space-y-2">
@@ -716,7 +945,7 @@ await run.started({ task: "Deploy production container" });`}
         </div>
       </section>
 
-      {/* 7. Final CTA & Footer (Requirement 11 & 13) */}
+      {/* 7. Final CTA & Footer */}
       <section className="py-16 bg-stone-900 text-white">
         <div className="max-w-3xl mx-auto px-4 text-center space-y-5">
           <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white">
@@ -751,6 +980,9 @@ await run.started({ task: "Deploy production container" });`}
           <div className="flex items-center gap-6 font-medium text-stone-400">
             <a href="#features" className="hover:text-white transition-colors">
               Product
+            </a>
+            <a href="#examples" className="hover:text-white transition-colors">
+              Use Cases
             </a>
             <a href="#security" className="hover:text-white transition-colors">
               Security
