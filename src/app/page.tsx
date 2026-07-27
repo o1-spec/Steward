@@ -916,7 +916,7 @@ await run.checkpoint();`}
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bgg-stone-warm border border-stone-200 space-y-2">
+              <div className="p-5 rounded-xl bg-stone-warm border border-stone-200 space-y-2">
                 <div className="font-semibold text-sm text-stone-900">3. Decisions recorded</div>
                 <p className="text-xs text-stone-600 leading-relaxed">
                   Human approvals, project modifications, and key revocations are stored in an append-only log.
@@ -1030,14 +1030,14 @@ await run.started({ task: "Deploy production container" });`}
               </p>
               <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
                 <Link href={isAuthenticated ? "/runs" : "/register"}>
-                  <Button variant="primary" size="md" className="w-full sm:w-auto bg-white text-stone-900 hover:bg-stone-100">
+                  <button className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm font-semibold bg-white text-stone-950 hover:bg-stone-100 transition-colors shadow-sm">
                     Connect an agent →
-                  </Button>
+                  </button>
                 </Link>
                 <Link href="/docs">
-                  <Button variant="outline" size="md" className="w-full sm:w-auto text-white border-stone-700 hover:bg-stone-800">
+                  <button className="w-full sm:w-auto px-5 py-2.5 rounded-lg text-sm font-medium bg-transparent text-stone-100 border border-stone-700 hover:bg-stone-800 hover:border-stone-600 transition-colors">
                     Read the documentation
-                  </Button>
+                  </button>
                 </Link>
               </div>
             </div>
