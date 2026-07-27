@@ -963,18 +963,26 @@ await run.checkpoint();`}
               subtitle="Add telemetry and approval gates using the official @steward/sdk package."
             />
 
-            <div className="max-w-2xl mx-auto rounded-xl bg-stone-950 text-stone-200 p-5 sm:p-6 font-mono text-xs space-y-3 shadow-md border border-stone-800">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-2.5 text-stone-400">
-                <span>agent.ts</span>
-                <button
-                  onClick={handleCopyCode}
-                  className="text-xs font-sans text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
-                >
-                  {copiedCode ? "✓ Copied!" : "Copy Code"}
-                </button>
+            <div className="max-w-2xl mx-auto space-y-4">
+              {/* Installation Command */}
+              <div className="bg-stone-950 text-stone-200 p-3.5 rounded-xl border border-stone-800 font-mono text-xs flex items-center justify-between shadow-sm">
+                <span><span className="text-stone-500">$</span> npm install @steward/sdk</span>
+                <span className="text-[10px] text-stone-500 font-sans uppercase tracking-wider">Terminal</span>
               </div>
-              <DragScroll>
-                <pre className="text-stone-300 leading-relaxed text-[11px]">
+
+              {/* Short Init Example */}
+              <div className="rounded-xl bg-stone-950 text-stone-200 p-5 font-mono text-xs space-y-3 shadow-md border border-stone-800">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-2.5 text-stone-400 text-[11px]">
+                  <span>agent.ts</span>
+                  <button
+                    onClick={handleCopyCode}
+                    className="text-xs font-sans text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                  >
+                    {copiedCode ? "✓ Copied!" : "Copy Code"}
+                  </button>
+                </div>
+                <DragScroll>
+                  <pre className="text-stone-300 leading-relaxed text-[11px]">
 {`import { Steward } from "@steward/sdk";
 
 const steward = new Steward({
@@ -984,14 +992,20 @@ const steward = new Steward({
 
 const run = steward.startRun();
 await run.started({ task: "Deploy production container" });`}
-                </pre>
-              </DragScroll>
+                  </pre>
+                </DragScroll>
+              </div>
             </div>
 
             <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-3 pt-8">
               <Link href={isAuthenticated ? "/runs" : "/register"}>
                 <Button variant="primary" size="md">
-                  Connect an agent →
+                  Create a project →
+                </Button>
+              </Link>
+              <Link href="/docs">
+                <Button variant="outline" size="md">
+                  Read the documentation
                 </Button>
               </Link>
             </div>
@@ -1016,11 +1030,11 @@ await run.started({ task: "Deploy production container" });`}
                     Connect an agent →
                   </Button>
                 </Link>
-                <a href="#integration">
+                <Link href="/docs">
                   <Button variant="outline" size="md" className="w-full sm:w-auto text-white border-stone-700 hover:bg-stone-800">
-                    Read the docs
+                    Read the documentation
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
           </Reveal>

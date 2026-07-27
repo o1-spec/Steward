@@ -97,7 +97,7 @@ export const DocumentSection: React.FC<{
 }> = ({ id, title, children }) => {
   return (
     <section id={id} className="scroll-mt-20 space-y-3 pb-8 border-b border-stone-200/80 last:border-b-0">
-      <h2 className="group text-xl sm:text-2xl font-serif font-bold text-stone-900 tracking-tight pt-2 flex items-center gap-2">
+      <h2 className="group text-lg sm:text-xl font-sans font-bold text-stone-900 tracking-tight pt-2 flex items-center gap-2">
         <span>{title}</span>
         <a
           href={`#${id}`}

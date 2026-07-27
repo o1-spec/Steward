@@ -1,12 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import {
-  PublicDocumentLayout,
-  DocumentSection,
-  DocumentCallout,
-  InlineCode,
-  DocTocItem,
-} from "@/components/docs/DocumentComponents";
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { DocumentSection, DocumentCallout, InlineCode, DocTocItem } from "@/components/docs/DocumentComponents";
 import { LEGAL_CONFIG } from "@/lib/legal-config";
 
 export const metadata = {
@@ -40,14 +35,13 @@ const TOC: DocTocItem[] = [
 
 export default function TermsPage() {
   return (
-    <PublicDocumentLayout
+    <LegalLayout
       title="Terms of Service"
       subtitle="Rules, policies, and responsibilities governing your use of Steward agent supervision services."
+      effectiveDate={LEGAL_CONFIG.EFFECTIVE_DATE}
       lastUpdated={LEGAL_CONFIG.LAST_UPDATED_DATE}
       toc={TOC}
       activePath="/terms"
-      prevLink={{ title: "Privacy Policy", href: "/privacy" }}
-      nextLink={{ title: "Documentation", href: "/docs" }}
     >
       <DocumentCallout type="note" title="Review Draft Notice">
         This document is an accurate product draft describing Steward V1 operational terms. It requires formal legal sign-off prior to commercial release.
@@ -181,6 +175,6 @@ export default function TermsPage() {
           For legal inquiries, contact <a href={`mailto:${LEGAL_CONFIG.LEGAL_EMAIL}`} className="text-blue-600 underline">{LEGAL_CONFIG.LEGAL_EMAIL}</a>.
         </p>
       </DocumentSection>
-    </PublicDocumentLayout>
+    </LegalLayout>
   );
 }

@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  PublicDocumentLayout,
-  DocumentSection,
-  DocumentCallout,
-  InlineCode,
-  DocTocItem,
-} from "@/components/docs/DocumentComponents";
+import { LegalLayout } from "@/components/legal/LegalLayout";
+import { DocumentSection, DocumentCallout, InlineCode, DocTocItem } from "@/components/docs/DocumentComponents";
 import { LEGAL_CONFIG } from "@/lib/legal-config";
 
 export const metadata = {
@@ -33,14 +28,13 @@ const TOC: DocTocItem[] = [
 
 export default function PrivacyPage() {
   return (
-    <PublicDocumentLayout
+    <LegalLayout
       title="Privacy Policy"
       subtitle="How Steward handles account information, telemetry, secret redaction, and data retention."
+      effectiveDate={LEGAL_CONFIG.EFFECTIVE_DATE}
       lastUpdated={LEGAL_CONFIG.LAST_UPDATED_DATE}
       toc={TOC}
       activePath="/privacy"
-      prevLink={{ title: "Security Overview", href: "/security" }}
-      nextLink={{ title: "Terms of Service", href: "/terms" }}
     >
       <DocumentCallout type="note" title="Review Draft Notice">
         This document is an accurate product draft describing Steward V1 operational behavior. It is subject to formal legal sign-off prior to commercial release.
@@ -150,6 +144,6 @@ export default function PrivacyPage() {
           For privacy questions or data requests, contact our team at <a href={`mailto:${LEGAL_CONFIG.PRIVACY_EMAIL}`} className="text-blue-600 underline">{LEGAL_CONFIG.PRIVACY_EMAIL}</a>.
         </p>
       </DocumentSection>
-    </PublicDocumentLayout>
+    </LegalLayout>
   );
 }

@@ -34,7 +34,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans text-stone-900 bg-[#FAF8F5] selection:bg-blue-100 selection:text-blue-900">{children}</body>
+      <body className="min-h-full flex flex-col font-sans text-stone-900 bg-stone-warm selection:bg-blue-100 selection:text-blue-900">{children}</body>
     </html>
   );
 }
