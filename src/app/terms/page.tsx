@@ -1,84 +1,186 @@
 import React from "react";
 import Link from "next/link";
-import { StewardLogo } from "@/components/StewardLogo";
-import { PageContainer, Section, SectionHeader } from "@/components/ui/Layout";
+import {
+  PublicDocumentLayout,
+  DocumentSection,
+  DocumentCallout,
+  InlineCode,
+  DocTocItem,
+} from "@/components/docs/DocumentComponents";
+import { LEGAL_CONFIG } from "@/lib/legal-config";
 
 export const metadata = {
   title: "Terms of Service — Steward",
   description: "Terms of Service and Acceptable Use Policy for Steward.",
 };
 
+const TOC: DocTocItem[] = [
+  { id: "agreement", title: "A. Agreement to Terms" },
+  { id: "eligibility", title: "B. Account Eligibility" },
+  { id: "accounts", title: "C. Accounts & Security" },
+  { id: "keys", title: "D. Projects & API Keys" },
+  { id: "description", title: "E. Service Description" },
+  { id: "acceptable-use", title: "F. Acceptable Use Policy" },
+  { id: "responsibilities", title: "G. Customer Responsibilities" },
+  { id: "approvals-controls", title: "H. Approvals & Cooperative Controls" },
+  { id: "availability", title: "I. Service Availability" },
+  { id: "beta-status", title: "J. V1 Beta Status" },
+  { id: "fees", title: "K. Pricing & Fees" },
+  { id: "intellectual-property", title: "L. Intellectual Property & Data Rights" },
+  { id: "privacy", title: "M. Privacy & Telemetry" },
+  { id: "third-party", title: "N. Third-Party Services" },
+  { id: "termination", title: "O. Suspension & Termination" },
+  { id: "disclaimers", title: "P. Disclaimers" },
+  { id: "liability", title: "Q. Limitation of Liability" },
+  { id: "indemnity", title: "R. Indemnification" },
+  { id: "disputes", title: "S. Governing Law & Disputes" },
+  { id: "changes", title: "T. Changes to Terms" },
+  { id: "contact", title: "U. Contact Information" },
+];
+
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-stone-warm text-stone-900 flex flex-col font-sans">
-      <header className="sticky top-0 z-40 bg-stone-warm/90 backdrop-blur-md border-b border-stone-200/80">
-        <PageContainer>
-          <div className="h-14 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <StewardLogo size="md" variant="dark" />
-            </Link>
-            <Link
-              href="/"
-              className="text-xs font-medium text-stone-600 hover:text-stone-900 transition-colors"
-            >
-              ← Back to Steward
-            </Link>
-          </div>
-        </PageContainer>
-      </header>
+    <PublicDocumentLayout
+      title="Terms of Service"
+      subtitle="Rules, policies, and responsibilities governing your use of Steward agent supervision services."
+      lastUpdated={LEGAL_CONFIG.LAST_UPDATED_DATE}
+      toc={TOC}
+      activePath="/terms"
+      prevLink={{ title: "Privacy Policy", href: "/privacy" }}
+      nextLink={{ title: "Documentation", href: "/docs" }}
+    >
+      <DocumentCallout type="note" title="Review Draft Notice">
+        This document is an accurate product draft describing Steward V1 operational terms. It requires formal legal sign-off prior to commercial release.
+      </DocumentCallout>
 
-      <main className="flex-1">
-        <Section bg="warm">
-          <PageContainer>
-            <SectionHeader
-              title="Terms of Service"
-              subtitle="Rules and policies governing your use of Steward autonomous agent supervision services."
-              centered={false}
-            />
+      <DocumentSection id="agreement" title="A. Agreement to Terms">
+        <p>
+          By creating an account, generating an API key, or integrating <InlineCode>@steward/sdk</InlineCode>, you agree to be bound by these Terms of Service.
+        </p>
+      </DocumentSection>
 
-            <div className="max-w-3xl space-y-8 text-xs sm:text-sm text-stone-700 leading-relaxed">
-              <div className="space-y-3 bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="text-base font-semibold text-stone-900">1. Acceptance of Terms</h3>
-                <p>
-                  By creating an account, generating an API key, or connecting an agent using <code className="bg-stone-100 px-1 py-0.5 rounded text-stone-900 font-mono text-xs">@steward/sdk</code>, you agree to these Terms of Service.
-                </p>
-              </div>
+      <DocumentSection id="eligibility" title="B. Account Eligibility">
+        <p>
+          You must be at least {LEGAL_CONFIG.MINIMUM_USER_AGE} years of age and authorized to form a binding contract to create an account.
+        </p>
+      </DocumentSection>
 
-              <div className="space-y-3 bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="text-base font-semibold text-stone-900">2. Cooperative Control Responsibility</h3>
-                <p>
-                  Steward provides human approval gates and control signals (`PAUSE`, `RESUME`, `CANCEL`). Connected agents remain executed in your own infrastructure environment. You are responsible for ensuring your agent code respects control command polling loops.
-                </p>
-              </div>
+      <DocumentSection id="accounts" title="C. Accounts & Security">
+        <p>
+          You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your project accounts.
+        </p>
+      </DocumentSection>
 
-              <div className="space-y-3 bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="text-base font-semibold text-stone-900">3. Acceptable Use</h3>
-                <p>
-                  You agree not to use Steward to transmit illegal payloads, bypass security controls, or attempt unauthorized access to project telemetry belonging to other accounts.
-                </p>
-              </div>
+      <DocumentSection id="keys" title="D. Projects & API Keys">
+        <p>
+          Project API keys grant connected agents access to stream telemetry to your project timeline. You must not embed secret API keys in public browser code. Keys may be revoked immediately in Project Settings.
+        </p>
+      </DocumentSection>
 
-              <div className="space-y-3 bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="text-base font-semibold text-stone-900">4. Service Availability</h3>
-                <p>
-                  Steward strives for high availability on ingestion endpoints and SSE event streams. Ingestion APIs are rate-limited to ensure platform stability.
-                </p>
-              </div>
-            </div>
-          </PageContainer>
-        </Section>
-      </main>
+      <DocumentSection id="description" title="E. Service Description">
+        <p>
+          Steward provides live execution visibility, human approval gates, cooperative control signals (<InlineCode>PAUSE</InlineCode>, <InlineCode>RESUME</InlineCode>, <InlineCode>CANCEL</InlineCode>), and audit logging for connected agents. Steward does not operate or host your connected agent code.
+        </p>
+      </DocumentSection>
 
-      <footer className="bg-stone-950 text-stone-400 text-xs border-t border-stone-800 py-6">
-        <PageContainer>
-          <div className="flex justify-between items-center">
-            <span>© 2026 Steward. All rights reserved.</span>
-            <Link href="/privacy" className="hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
-        </PageContainer>
-      </footer>
-    </div>
+      <DocumentSection id="acceptable-use" title="F. Acceptable Use Policy">
+        <p>You agree not to:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Transmit malicious code, malware, or illegal telemetry payloads.</li>
+          <li>Attempt unauthorized access to project telemetry belonging to other accounts.</li>
+          <li>Bypass rate limits or multi-tenant database isolation boundaries.</li>
+        </ul>
+      </DocumentSection>
+
+      <DocumentSection id="responsibilities" title="G. Customer Responsibilities">
+        <p>
+          You are solely responsible for your agent&apos;s behavior, tool execution callbacks, and compliance with external API provider terms.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="approvals-controls" title="H. Approvals & Cooperative Controls">
+        <p>
+          Human approval recorded in Steward authorizes your connected agent to proceed with a callback execution. Pause, resume, and cancel signals operate cooperatively through connected SDK checkpoint polling.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="availability" title="I. Service Availability">
+        <p>
+          While Steward strives for continuous ingestion availability, service is provided on an &quot;AS IS&quot; basis without uptime guarantees unless explicitly covered under an enterprise SLA agreement.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="beta-status" title="J. V1 Beta Status">
+        <p>
+          Steward V1 features are subject to ongoing refinement. High-impact agent pipelines should maintain independent application-level safeguards.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="fees" title="K. Pricing & Fees">
+        <p>
+          Current V1 development features are provided under standard account tier limits. Any future paid features will be disclosed prior to fee assessment.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="intellectual-property" title="L. Intellectual Property & Data Rights">
+        <p>
+          Steward retains all rights to the platform software and branding. Customers retain full ownership of their agent code, telemetry data, and agent outputs.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="privacy" title="M. Privacy & Telemetry">
+        <p>
+          Telemetry collection and secret redaction are governed by our <Link href="/privacy" className="text-blue-600 underline">Privacy Policy</Link>.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="third-party" title="N. Third-Party Services">
+        <p>
+          Interactions between your agents and third-party APIs (such as LLM providers or cloud services) remain governed by separate third-party agreements.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="termination" title="O. Suspension & Termination">
+        <p>
+          We reserve the right to suspend API key access or accounts in the event of security compromise, illegal activity, or material breach of these terms.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="disclaimers" title="P. Disclaimers">
+        <p>
+          STEWARD IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="liability" title="Q. Limitation of Liability">
+        <p>
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, STEWARD SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING FROM AGENT EXECUTION OR CONTROL DELAYS.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="indemnity" title="R. Indemnification">
+        <p>
+          You agree to hold harmless Steward against claims arising from your agent&apos;s actions or violation of third-party API policies.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="disputes" title="S. Governing Law & Disputes">
+        <p>
+          These terms are governed by the laws of {LEGAL_CONFIG.GOVERNING_JURISDICTION}.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="changes" title="T. Changes to Terms">
+        <p>
+          We will notify users of material changes to these terms by updating the effective date and displaying a notice in the dashboard.
+        </p>
+      </DocumentSection>
+
+      <DocumentSection id="contact" title="U. Contact Information">
+        <p>
+          For legal inquiries, contact <a href={`mailto:${LEGAL_CONFIG.LEGAL_EMAIL}`} className="text-blue-600 underline">{LEGAL_CONFIG.LEGAL_EMAIL}</a>.
+        </p>
+      </DocumentSection>
+    </PublicDocumentLayout>
   );
 }
